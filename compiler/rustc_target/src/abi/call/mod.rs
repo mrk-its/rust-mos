@@ -28,6 +28,7 @@ mod wasm;
 mod x86;
 mod x86_64;
 mod x86_win64;
+mod mos;
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug, HashStable_Generic)]
 pub enum PassMode {
@@ -830,6 +831,7 @@ impl<'a, Ty> FnAbi<'a, Ty> {
             "avr" => avr::compute_abi_info(self),
             "loongarch64" => loongarch::compute_abi_info(cx, self),
             "m68k" => m68k::compute_abi_info(self),
+            "mos" => mos::compute_abi_info(self),
             "csky" => csky::compute_abi_info(self),
             "mips" | "mips32r6" => mips::compute_abi_info(cx, self),
             "mips64" | "mips64r6" => mips64::compute_abi_info(cx, self),
