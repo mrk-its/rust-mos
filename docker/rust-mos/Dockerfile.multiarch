@@ -1,0 +1,41 @@
+ARG LLVM_MOS_IMAGE
+ARG RUST_MOS_DIST_IMAGE
+
+FROM ${RUST_MOS_DIST_IMAGE} as dist
+
+# FROM ${LLVM_MOS_IMAGE}-arm64 as image-arm64
+# ARG ARCH_NAME=aarch64
+# TODO: remove it when target registration is removed from here
+# RUN apt-get update && apt-get install -y python3
+
+FROM ${LLVM_MOS_IMAGE}-amd64 as image-amd64
+ARG ARCH_NAME=x86_64
+
+FROM image-$TARGETARCH as install
+COPY --from=dist /usr/local/dist/rust-*-dev-${ARCH_NAME}* /usr/local/dist/
+COPY --from=dist /usr/local/dist/*-src-* /usr/local/dist/
+
+WORKDIR /usr/local/dist/
+RUN \
+  for i in *.tar.gz; do \
+    echo $i; \
+    tar xf $i; \
+    $(basename $i .tar.gz)/install.sh --prefix=/usr/local/rust-mos --verbose; \
+  done
+
+FROM image-$TARGETARCH
+COPY --from=install /usr/local/rust-mos/ /usr/local/rust-mos/
+
+ENV RUST_TARGET_PATH=/usr/local/rust-mos/targets
+RUN mkdir $RUST_TARGET_PATH;
+COPY create_mos_targets.py /tmp/create_mos_targets.py
+RUN PATH=/usr/local/rust-mos/bin:$PATH python3 /tmp/create_mos_targets.py $RUST_TARGET_PATH
+
+USER mos
+
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain none
+ENV PATH=$HOME/.cargo/bin:$PATH
+RUN bash -c "source $HOME/.cargo/env; rustup toolchain link mos /usr/local/rust-mos; rustup default mos"
+
+WORKDIR /home/mos
+
