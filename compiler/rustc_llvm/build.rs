@@ -139,6 +139,7 @@ fn main() {
         "avr",
         "m68k",
         "mips",
+        "mos",
         "powerpc",
         "systemz",
         "jsbackend",

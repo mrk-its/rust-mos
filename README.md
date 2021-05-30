@@ -12,6 +12,23 @@ You can ask for help in the [#new members Zulip stream][new-members].**
 
 [new-members]: https://rust-lang.zulipchat.com/#narrow/stream/122652-new-members
 
+# MOS target notes
+
+It depends on [llvm-mos](https://github.com/llvm-mos/llvm-mos) and [llvm-mos-sdk](https://github.com/llvm-mos/llvm-mos-sdk) - both projects needs to be built and working, following directory structure is assumed:
+   ```
+   |- llvm-mos
+   |- llvm-mos-sdk
+   +- rust (this one)
+   ```
+
+Build and link mos toolchain:
+```
+   ./x.py build -i --stage 0 src/tools/cargo
+   ./x.py build -i
+   ln -s ../../stage0-tools-bin/cargo build/x86_64-unknown-linux-gnu/stage1/bin/cargo
+   rustup toolchain link mos build/x86_64-unknown-linux-gnu/stage1
+```
+
 ## Quick Start
 
 Read ["Installation"] from [The Book].
