@@ -33,6 +33,7 @@ mod x86;
 mod x86_64;
 mod x86_win64;
 mod xtensa;
+mod mos;
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug, HashStable_Generic)]
 pub enum PassMode {
@@ -682,7 +683,12 @@ impl<'a, Ty> FnAbi<'a, Ty> {
             "csky" => csky::compute_abi_info(self),
             "mips" | "mips32r6" => mips::compute_abi_info(cx, self),
             "mips64" | "mips64r6" => mips64::compute_abi_info(cx, self),
+<<<<<<< HEAD:compiler/rustc_target/src/callconv/mod.rs
             "powerpc" => powerpc::compute_abi_info(cx, self),
+=======
+            "mos" => mos::compute_abi_info(self),
+            "powerpc" => powerpc::compute_abi_info(self),
+>>>>>>> bfc27ffdf42 (add mos-unknown-none target):compiler/rustc_target/src/abi/call/mod.rs
             "powerpc64" => powerpc64::compute_abi_info(cx, self),
             "s390x" => s390x::compute_abi_info(cx, self),
             "msp430" => msp430::compute_abi_info(self),

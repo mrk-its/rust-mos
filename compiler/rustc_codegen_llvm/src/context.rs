@@ -1141,7 +1141,7 @@ impl<'ll> CodegenCx<'ll, '_> {
         // recognize it like one (including turning it into `bcmp` sometimes)
         // and we use it to implement intrinsics like `raw_eq` and `compare_bytes`
         match self.sess().target.arch.as_ref() {
-            "avr" | "msp430" => ifn!("memcmp", fn(ptr, ptr, t_isize) -> t_i16),
+            "avr" | "msp430" | "mos" => ifn!("memcmp", fn(ptr, ptr, t_isize) -> t_i16),
             _ => ifn!("memcmp", fn(ptr, ptr, t_isize) -> t_i32),
         }
 

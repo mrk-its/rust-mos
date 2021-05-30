@@ -32,6 +32,50 @@ standard library, and documentation.
 [Clippy]: https://github.com/rust-lang/rust-clippy
 [rust-analyzer]: https://github.com/rust-lang/rust-analyzer
 
+# MOS target notes
+
+MOS target depends on [llvm-mos](https://github.com/llvm-mos/llvm-mos) and [llvm-mos-sdk](https://github.com/llvm-mos/llvm-mos-sdk). Installation of llvm-mos is described in project's [README](https://github.com/llvm-mos/llvm-mos/blob/main/README.md), but it needs to be slightly modified:
+
+```
+git clone https://github.com/llvm-mos/llvm-mos
+cd llvm-mos
+# For MacOS, use `-DLIBXML2_LIBRARY=/usr/local/opt/libxml2/lib/libxml2.dylib` instead of `-DLIBXML2_LIBRARY=/usr/lib/x86_64-linux-gnu/libxml2.so`
+cmake -C clang/cmake/caches/MOS.cmake -G "Ninja" -S llvm -B build \
+   -DLLVM_INSTALL_TOOLCHAIN_ONLY=OFF \
+   -DLLVM_BUILD_LLVM_DYLIB=ON -DLLVM_LINK_LLVM_DYLIB=ON \
+   -DLLVM_INSTALL_UTILS=ON -DLLVM_BUILD_UTILS=ON -DLLVM_TOOLCHAIN_UTILITIES=FileCheck \
+   -DLLVM_TOOLCHAIN_TOOLS="llvm-addr2line;llvm-ar;llvm-cxxfilt;llvm-dwarfdump;llvm-mc;llvm-nm;llvm-objcopy;llvm-objdump;llvm-ranlib;llvm-readelf;llvm-readobj;llvm-size;llvm-strings;llvm-strip;llvm-symbolizer;llvm-config;llc" \
+   -DLIBXML2_LIBRARY=/usr/lib/x86_64-linux-gnu/libxml2.so \
+   -DLLVM_TARGETS_TO_BUILD="MOS;X86" \
+   -DLLVM_ENABLE_PROJECTS="clang;lld;lldb"
+cmake --build build -t install
+```
+
+Build & install llvm-mos-sdk:
+
+```
+git clone https://github.com/llvm-mos/llvm-mos-sdk
+cd llvm-mos-sdk
+cmake -G "Ninja" -B build
+cmake --build build -t install
+```
+
+And finally build rust mos toolchain:
+```
+   export RUST_TARGET_PATH=/usr/local/rust-mos-targets/
+   cp config.toml.example config.toml
+   # in config.toml adjust path to llvm-config
+   # if llvm-mos is installed to other than /usr/local prefix
+   ./x.py build -i --stage 0 src/tools/cargo
+   ./x.py build -i && (
+   ln -s ../../stage0-tools-bin/cargo build/x86_64-unknown-linux-gnu/stage1/bin/cargo
+      rustup toolchain link mos build/x86_64-unknown-linux-gnu/stage1
+      rustup default mos
+      mkdir -p $RUST_TARGET_PATH
+      python3 create_mos_targets.py $RUST_TARGET_PATH
+   )
+```
+
 ## Quick Start
 
 Read ["Installation"] from [The Book].

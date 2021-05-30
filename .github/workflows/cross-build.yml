@@ -1,0 +1,117 @@
+name: llvm_cross_build
+on:
+  workflow_dispatch:
+    inputs:
+      llvm_mos_repo:
+        description: 'llvm-mos repo'
+        default: 'llvm-mos/llvm-mos'
+        type: string
+      llvm_mos_sdk_repo:
+        description: 'llvm-mos-sdk repo'
+        default: 'llvm-mos/llvm-mos-sdk'
+        type: string
+      llvm_mos_ref:
+        description: 'llvm-mos ref'
+        default: 'adbc7b3dd18b8a8a0bbd69c50f33b3b07ec0abf5'
+        type: string
+      llvm_mos_sdk_ref:
+        description: 'llvm-mos-sdk ref'
+        default: '3e94be457ceece85739853e118c67a1d82450f4f'
+        type: string
+
+jobs:
+  amd64_image:
+    if: ${{ false }}
+    uses: ./.github/workflows/cross-build-llvm-mos.yml
+    with:
+      arch: amd64
+      llvm_mos_repo: ${{ github.event.inputs.llvm_mos_repo }}
+      llvm_mos_sdk_repo: ${{ github.event.inputs.llvm_mos_sdk_repo }}
+      llvm_mos_ref: ${{ github.event.inputs.llvm_mos_ref }}
+      llvm_mos_sdk_ref: ${{ github.event.inputs.llvm_mos_sdk_ref }}
+    secrets: inherit
+
+  arm64_image:
+    if: ${{ false }}
+    uses: ./.github/workflows/cross-build-llvm-mos.yml
+    with:
+      arch: arm64
+      llvm_mos_repo: ${{ github.event.inputs.llvm_mos_repo }}
+      llvm_mos_sdk_repo: ${{ github.event.inputs.llvm_mos_sdk_repo }}
+      llvm_mos_ref: ${{ github.event.inputs.llvm_mos_ref }}
+      llvm_mos_sdk_ref: ${{ github.event.inputs.llvm_mos_sdk_ref }}
+    secrets: inherit
+
+  final:
+    runs-on: ubuntu-latest
+      # needs:
+      #   - amd64_image
+      #   - arm64_image
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Checkout llvm-mos
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ github.event.inputs.llvm_mos_repo }}
+          path: docker/llvm-mos/llvm-mos
+          ref: ${{ github.event.inputs.llvm_mos_ref }}
+
+      - name: Checkout llvm-mos-sdk
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ github.event.inputs.llvm_mos_sdk_repo }}
+          path: docker/llvm-mos/llvm-mos-sdk
+          ref: ${{github.event.inputs.llvm_mos_sdk_ref }}
+
+      - name: Set short sha
+        id: short_sha
+        run: echo -e "::set-output name=llvm_mos::$(cd docker/llvm-mos/llvm-mos; git rev-parse --short HEAD)\n::set-output name=llvm_mos_sdk::$(cd docker/llvm-mos/llvm-mos-sdk; git rev-parse --short HEAD)"
+
+      - name: Set rust-mos short sha
+        id: rust_mos
+        run: echo -e "::set-output name=short_sha::$(git rev-parse --short HEAD)"
+        # run: echo -e "::set-output name=short_sha::ad5d187a"
+
+      - name: show revisions
+        run: "echo llvm_mos: ${{ steps.short_sha.outputs.llvm_mos }} llvm_mos_sdk: ${{ steps.short_sha.outputs.llvm_mos_sdk }} rust_mos: ${{ steps.rust_mos.outputs.short_sha }}"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push rust-mos
+        id: build_rust_dist_image
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: mrkits/rust-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-${{ steps.rust_mos.outputs.short_sha }}-dist
+          file: docker/rust-mos/Dockerfile
+          context: .
+          build-args: |
+            LLVM_MOS_IMAGE=mrkits/llvm-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}
+          cache-from: type=registry,ref=mrkits/rust-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-${{ steps.rust_mos.outputs.short_sha }}-dist
+
+      - name: Build and push multi-platform rust-mos image
+        id: build_rust_multiarch_image
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: mrkits/rust-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-${{ steps.rust_mos.outputs.short_sha }}
+          file: docker/rust-mos/Dockerfile.multiarch
+          platforms: linux/amd64
+            #,linux/arm64
+          context: docker/rust-mos/
+          build-args: |
+            LLVM_MOS_IMAGE=mrkits/llvm-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}
+            RUST_MOS_DIST_IMAGE=mrkits/rust-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-${{ steps.rust_mos.outputs.short_sha }}-dist
+

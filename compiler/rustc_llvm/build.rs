@@ -14,6 +14,7 @@ const OPTIONAL_COMPONENTS: &[&str] = &[
     "m68k",
     "csky",
     "mips",
+    "mos",
     "powerpc",
     "systemz",
     "jsbackend",

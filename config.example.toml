@@ -840,6 +840,12 @@
 # against. Note that if this is specified we don't compile LLVM at all for this
 # target.
 #llvm-config = <none> (path)
+# llvm-config = "/usr/local/bin/llvm-config"
+
+llvm-config = "../llvm-mos/build/bin/llvm-config"
+# Override detection of whether this is a Rust-patched LLVM. This would be used
+# in conjunction with either an llvm-config or build.submodules = false.
+llvm-has-rust-patches = if llvm-config { false } else { true }
 
 # Override detection of whether this is a Rust-patched LLVM. This would be used
 # in conjunction with either an llvm-config or build.submodules = false.
