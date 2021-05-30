@@ -158,7 +158,7 @@ mod c_char_definition {
 
 mod c_int_definition {
     cfg_if! {
-        if #[cfg(any(target_arch = "avr", target_arch = "msp430"))] {
+        if #[cfg(target_pointer_width = "16")] {
             pub type c_int = i16;
             pub type NonZero_c_int = crate::num::NonZeroI16;
             pub type c_uint = u16;
