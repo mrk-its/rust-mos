@@ -659,9 +659,11 @@ changelog-seen = 2
 # target.
 #llvm-config = <none> (path)
 
+llvm-config = "../llvm-mos/build/bin/llvm-config"
 # Normally the build system can find LLVM's FileCheck utility, but if
 # not, you can specify an explicit file name for it.
 #llvm-filecheck = "/path/to/llvm-version/bin/FileCheck"
+llvm-filecheck = "../llvm-mos/build/bin/FileCheck"
 
 # If this target is for Android, this option will be required to specify where
 # the NDK for the target lives. This is used to find the C compiler to link and

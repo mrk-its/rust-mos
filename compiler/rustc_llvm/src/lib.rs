@@ -63,6 +63,14 @@ pub fn initialize_available_targets() {
         LLVMInitializeX86AsmParser
     );
     init_target!(
+        llvm_component = "mos",
+        LLVMInitializeMOSTargetInfo,
+        LLVMInitializeMOSTarget,
+        LLVMInitializeMOSTargetMC,
+        LLVMInitializeMOSAsmPrinter,
+        LLVMInitializeMOSAsmParser
+    );
+    init_target!(
         llvm_component = "arm",
         LLVMInitializeARMTargetInfo,
         LLVMInitializeARMTarget,

@@ -26,6 +26,7 @@ mod wasm;
 mod x86;
 mod x86_64;
 mod x86_win64;
+mod mos;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, HashStable_Generic)]
 pub enum PassMode {
@@ -687,6 +688,7 @@ impl<'a, Ty> FnAbi<'a, Ty> {
             "arm" => arm::compute_abi_info(cx, self),
             "avr" => avr::compute_abi_info(self),
             "m68k" => m68k::compute_abi_info(self),
+            "mos" => mos::compute_abi_info(self),
             "mips" => mips::compute_abi_info(cx, self),
             "mips64" => mips64::compute_abi_info(cx, self),
             "powerpc" => powerpc::compute_abi_info(self),

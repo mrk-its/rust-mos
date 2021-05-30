@@ -804,6 +804,7 @@ macro_rules! supported_targets {
 }
 
 supported_targets! {
+    ("mos-unknown-none", mos_unknown_none),
     ("x86_64-unknown-linux-gnu", x86_64_unknown_linux_gnu),
     ("x86_64-unknown-linux-gnux32", x86_64_unknown_linux_gnux32),
     ("i686-unknown-linux-gnu", i686_unknown_linux_gnu),
