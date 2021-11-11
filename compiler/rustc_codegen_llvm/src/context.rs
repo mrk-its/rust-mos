@@ -855,7 +855,12 @@ impl<'ll> CodegenCx<'ll, '_> {
 
         // This isn't an "LLVM intrinsic", but LLVM's optimization passes
         // recognize it like one and we assume it exists in `core::slice::cmp`
-        ifn!("memcmp", fn(i8p, i8p, t_isize) -> t_i32);
+        match self.sess().target.c_int_width.as_str() {
+            "16" => ifn!("memcmp", fn(i8p, i8p, t_isize) -> t_i16),
+            "32" => ifn!("memcmp", fn(i8p, i8p, t_isize) -> t_i32),
+            "64" => ifn!("memcmp", fn(i8p, i8p, t_isize) -> t_i64),
+            x => bug!("Unsupported target_c_int_width = {}", x),
+        }
 
         // variadic intrinsics
         ifn!("llvm.va_start", fn(i8p) -> void);

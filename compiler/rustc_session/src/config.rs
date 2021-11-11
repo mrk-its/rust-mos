@@ -940,6 +940,7 @@ fn default_configuration(sess: &Session) -> CrateConfig {
     let end = &sess.target.endian;
     let arch = &sess.target.arch;
     let wordsz = sess.target.pointer_width.to_string();
+    let cintsz = sess.target.c_int_width.to_string();
     let os = &sess.target.os;
     let env = &sess.target.env;
     let abi = &sess.target.abi;
@@ -966,6 +967,7 @@ fn default_configuration(sess: &Session) -> CrateConfig {
     ret.insert((sym::target_arch, Some(Symbol::intern(arch))));
     ret.insert((sym::target_endian, Some(Symbol::intern(end.as_str()))));
     ret.insert((sym::target_pointer_width, Some(Symbol::intern(&wordsz))));
+    ret.insert((sym::c_int_width, Some(Symbol::intern(&cintsz))));
     ret.insert((sym::target_env, Some(Symbol::intern(env))));
     ret.insert((sym::target_abi, Some(Symbol::intern(abi))));
     ret.insert((sym::target_vendor, Some(Symbol::intern(vendor))));

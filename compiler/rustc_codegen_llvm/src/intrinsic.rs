@@ -329,7 +329,12 @@ impl<'ll, 'tcx> IntrinsicCallMethods<'tcx> for Builder<'_, 'll, 'tcx> {
                     let b_ptr = self.bitcast(b, i8p_ty);
                     let n = self.const_usize(layout.size.bytes());
                     let cmp = self.call_intrinsic("memcmp", &[a_ptr, b_ptr, n]);
-                    self.icmp(IntPredicate::IntEQ, cmp, self.const_i32(0))
+                    match self.cx.sess().target.c_int_width.as_str() {
+                        "16" => self.icmp(IntPredicate::IntEQ, cmp, self.const_i16(0)),
+                        "32" => self.icmp(IntPredicate::IntEQ, cmp, self.const_i32(0)),
+                        "64" => self.icmp(IntPredicate::IntEQ, cmp, self.const_i64(0)),
+                        x => bug!("Unsupported target_c_int_width = {}", x),
+                    }
                 }
             }
 

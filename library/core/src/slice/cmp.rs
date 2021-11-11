@@ -6,15 +6,20 @@ use crate::mem;
 use super::from_raw_parts;
 use super::memchr;
 
+/// Calls implementation provided memcmp.
+///
+/// Interprets the data as u8.
+///
+/// Returns 0 for equal, < 0 for less than and > 0 for greater
+/// than.
 extern "C" {
-    /// Calls implementation provided memcmp.
-    ///
-    /// Interprets the data as u8.
-    ///
-    /// Returns 0 for equal, < 0 for less than and > 0 for greater
-    /// than.
-    // FIXME(#32610): Return type should be c_int
+    #[cfg(c_int_width = "16")]
+    fn memcmp(s1: *const u8, s2: *const u8, n: usize) -> i16;
+    // Assume we're building the bootstrap compiler on a system with 32-bit c-int width
+    #[cfg(any(bootstrap, c_int_width = "32"))]
     fn memcmp(s1: *const u8, s2: *const u8, n: usize) -> i32;
+    #[cfg(c_int_width = "64")]
+    fn memcmp(s1: *const u8, s2: *const u8, n: usize) -> i64;
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]

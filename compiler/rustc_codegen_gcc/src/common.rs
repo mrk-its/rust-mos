@@ -1,19 +1,15 @@
 use std::convert::TryFrom;
 
 use gccjit::LValue;
-use gccjit::{Block, CType, RValue, Type, ToRValue};
+use gccjit::{Block, CType, RValue, ToRValue, Type};
 use rustc_codegen_ssa::mir::place::PlaceRef;
 use rustc_codegen_ssa::traits::{
-    BaseTypeMethods,
-    ConstMethods,
-    DerivedTypeMethods,
-    MiscMethods,
-    StaticMethods,
+    BaseTypeMethods, ConstMethods, DerivedTypeMethods, MiscMethods, StaticMethods,
 };
-use rustc_middle::mir::Mutability;
-use rustc_middle::ty::ScalarInt;
-use rustc_middle::ty::layout::{TyAndLayout, LayoutOf};
 use rustc_middle::mir::interpret::{Allocation, GlobalAlloc, Scalar};
+use rustc_middle::mir::Mutability;
+use rustc_middle::ty::layout::{LayoutOf, TyAndLayout};
+use rustc_middle::ty::ScalarInt;
 use rustc_span::Symbol;
 use rustc_target::abi::{self, HasDataLayout, Pointer, Size};
 
@@ -48,7 +44,12 @@ impl<'gcc, 'tcx> CodegenCx<'gcc, 'tcx> {
         // TODO(antoyo): set linkage.
     }
 
-    pub fn inttoptr(&self, block: Block<'gcc>, value: RValue<'gcc>, dest_ty: Type<'gcc>) -> RValue<'gcc> {
+    pub fn inttoptr(
+        &self,
+        block: Block<'gcc>,
+        value: RValue<'gcc>,
+        dest_ty: Type<'gcc>,
+    ) -> RValue<'gcc> {
         let func = block.get_function();
         let local = func.new_local(None, value.get_type(), "intLocal");
         block.add_assignment(None, local, value);
@@ -58,7 +59,12 @@ impl<'gcc, 'tcx> CodegenCx<'gcc, 'tcx> {
         ptr.dereference(None).to_rvalue()
     }
 
-    pub fn ptrtoint(&self, block: Block<'gcc>, value: RValue<'gcc>, dest_ty: Type<'gcc>) -> RValue<'gcc> {
+    pub fn ptrtoint(
+        &self,
+        block: Block<'gcc>,
+        value: RValue<'gcc>,
+        dest_ty: Type<'gcc>,
+    ) -> RValue<'gcc> {
         // TODO(antoyo): when libgccjit allow casting from pointer to int, remove this.
         let func = block.get_function();
         let local = func.new_local(None, value.get_type(), "ptrLocal");
@@ -75,9 +81,7 @@ pub fn bytes_in_context<'gcc, 'tcx>(cx: &CodegenCx<'gcc, 'tcx>, bytes: &[u8]) ->
     let byte_type = context.new_type::<u8>();
     let typ = context.new_array_type(None, byte_type, bytes.len() as i32);
     let elements: Vec<_> =
-        bytes.iter()
-        .map(|&byte| context.new_rvalue_from_int(byte_type, byte as i32))
-        .collect();
+        bytes.iter().map(|&byte| context.new_rvalue_from_int(byte_type, byte as i32)).collect();
     context.new_array_constructor(None, typ, &elements)
 }
 
@@ -87,25 +91,18 @@ pub fn type_is_pointer<'gcc>(typ: Type<'gcc>) -> bool {
 
 impl<'gcc, 'tcx> ConstMethods<'tcx> for CodegenCx<'gcc, 'tcx> {
     fn const_null(&self, typ: Type<'gcc>) -> RValue<'gcc> {
-        if type_is_pointer(typ) {
-            self.context.new_null(typ)
-        }
-        else {
-            self.const_int(typ, 0)
-        }
+        if type_is_pointer(typ) { self.context.new_null(typ) } else { self.const_int(typ, 0) }
     }
 
     fn const_undef(&self, typ: Type<'gcc>) -> RValue<'gcc> {
-        let local = self.current_func.borrow().expect("func")
-            .new_local(None, typ, "undefined");
+        let local = self.current_func.borrow().expect("func").new_local(None, typ, "undefined");
         if typ.is_struct().is_some() {
             // NOTE: hack to workaround a limitation of the rustc API: see comment on
             // CodegenCx.structs_as_pointer
             let pointer = local.get_address(None);
             self.structs_as_pointer.borrow_mut().insert(pointer);
             pointer
-        }
-        else {
+        } else {
             local.to_rvalue()
         }
     }
@@ -126,12 +123,10 @@ impl<'gcc, 'tcx> ConstMethods<'tcx> for CodegenCx<'gcc, 'tcx> {
 
             let sixty_four = self.context.new_rvalue_from_long(typ, 64);
             (high << sixty_four) | self.context.new_cast(None, low, typ)
-        }
-        else if typ.is_i128(self) {
+        } else if typ.is_i128(self) {
             let num = self.context.new_rvalue_from_long(self.u64_type, num as u64 as i64);
             self.context.new_cast(None, num, typ)
-        }
-        else {
+        } else {
             self.context.new_rvalue_from_long(typ, num as u64 as i64)
         }
     }
@@ -140,8 +135,16 @@ impl<'gcc, 'tcx> ConstMethods<'tcx> for CodegenCx<'gcc, 'tcx> {
         self.const_uint(self.type_i1(), val as u64)
     }
 
+    fn const_i16(&self, i: i16) -> RValue<'gcc> {
+        self.const_int(self.type_i16(), i as i64)
+    }
+
     fn const_i32(&self, i: i32) -> RValue<'gcc> {
         self.const_int(self.type_i32(), i as i64)
+    }
+
+    fn const_i64(&self, i: i64) -> RValue<'gcc> {
+        self.const_int(self.type_i64(), i)
     }
 
     fn const_u32(&self, i: u32) -> RValue<'gcc> {
@@ -172,16 +175,15 @@ impl<'gcc, 'tcx> ConstMethods<'tcx> for CodegenCx<'gcc, 'tcx> {
 
     fn const_str(&self, s: Symbol) -> (RValue<'gcc>, RValue<'gcc>) {
         let len = s.as_str().len();
-        let cs = self.const_ptrcast(self.const_cstr(s, false).get_address(None),
+        let cs = self.const_ptrcast(
+            self.const_cstr(s, false).get_address(None),
             self.type_ptr_to(self.layout_of(self.tcx.types.str_).gcc_type(self, true)),
         );
         (cs, self.const_usize(len as u64))
     }
 
     fn const_struct(&self, values: &[RValue<'gcc>], packed: bool) -> RValue<'gcc> {
-        let fields: Vec<_> = values.iter()
-            .map(|value| value.get_type())
-            .collect();
+        let fields: Vec<_> = values.iter().map(|value| value.get_type()).collect();
         // TODO(antoyo): cache the type? It's anonymous, so probably not.
         let typ = self.type_struct(&fields, packed);
         let struct_type = typ.is_struct().expect("struct type");
@@ -211,9 +213,10 @@ impl<'gcc, 'tcx> ConstMethods<'tcx> for CodegenCx<'gcc, 'tcx> {
                 // FIXME(antoyo): there's some issues with using the u128 code that follows, so hard-code
                 // the paths for floating-point values.
                 if ty == self.float_type {
-                    return self.context.new_rvalue_from_double(ty, f32::from_bits(data as u32) as f64);
-                }
-                else if ty == self.double_type {
+                    return self
+                        .context
+                        .new_rvalue_from_double(ty, f32::from_bits(data as u32) as f64);
+                } else if ty == self.double_type {
                     return self.context.new_rvalue_from_double(ty, f64::from_bits(data as u64));
                 }
 
@@ -226,36 +229,32 @@ impl<'gcc, 'tcx> ConstMethods<'tcx> for CodegenCx<'gcc, 'tcx> {
             }
             Scalar::Ptr(ptr, _size) => {
                 let (alloc_id, offset) = ptr.into_parts();
-                let base_addr =
-                    match self.tcx.global_alloc(alloc_id) {
-                        GlobalAlloc::Memory(alloc) => {
-                            let init = const_alloc_to_gcc(self, alloc);
-                            let value =
-                                match alloc.mutability {
-                                    Mutability::Mut => self.static_addr_of_mut(init, alloc.align, None),
-                                    _ => self.static_addr_of(init, alloc.align, None),
-                                };
-                            if !self.sess().fewer_names() {
-                                // TODO(antoyo): set value name.
-                            }
-                            value
-                        },
-                        GlobalAlloc::Function(fn_instance) => {
-                            self.get_fn_addr(fn_instance)
-                        },
-                        GlobalAlloc::Static(def_id) => {
-                            assert!(self.tcx.is_static(def_id));
-                            self.get_static(def_id).get_address(None)
-                        },
-                    };
+                let base_addr = match self.tcx.global_alloc(alloc_id) {
+                    GlobalAlloc::Memory(alloc) => {
+                        let init = const_alloc_to_gcc(self, alloc);
+                        let value = match alloc.mutability {
+                            Mutability::Mut => self.static_addr_of_mut(init, alloc.align, None),
+                            _ => self.static_addr_of(init, alloc.align, None),
+                        };
+                        if !self.sess().fewer_names() {
+                            // TODO(antoyo): set value name.
+                        }
+                        value
+                    }
+                    GlobalAlloc::Function(fn_instance) => self.get_fn_addr(fn_instance),
+                    GlobalAlloc::Static(def_id) => {
+                        assert!(self.tcx.is_static(def_id));
+                        self.get_static(def_id).get_address(None)
+                    }
+                };
                 let ptr_type = base_addr.get_type();
                 let base_addr = self.const_bitcast(base_addr, self.usize_type);
-                let offset = self.context.new_rvalue_from_long(self.usize_type, offset.bytes() as i64);
+                let offset =
+                    self.context.new_rvalue_from_long(self.usize_type, offset.bytes() as i64);
                 let ptr = self.const_bitcast(base_addr + offset, ptr_type);
                 if layout.value != Pointer {
                     self.const_bitcast(ptr.dereference(None).to_rvalue(), ty)
-                }
-                else {
+                } else {
                     self.const_bitcast(ptr, ty)
                 }
             }
@@ -266,22 +265,28 @@ impl<'gcc, 'tcx> ConstMethods<'tcx> for CodegenCx<'gcc, 'tcx> {
         const_alloc_to_gcc(self, alloc)
     }
 
-    fn from_const_alloc(&self, layout: TyAndLayout<'tcx>, alloc: &Allocation, offset: Size) -> PlaceRef<'tcx, RValue<'gcc>> {
+    fn from_const_alloc(
+        &self,
+        layout: TyAndLayout<'tcx>,
+        alloc: &Allocation,
+        offset: Size,
+    ) -> PlaceRef<'tcx, RValue<'gcc>> {
         assert_eq!(alloc.align, layout.align.abi);
         let ty = self.type_ptr_to(layout.gcc_type(self, true));
-        let value =
-            if layout.size == Size::ZERO {
-                let value = self.const_usize(alloc.align.bytes());
-                self.context.new_cast(None, value, ty)
-            }
-            else {
-                let init = const_alloc_to_gcc(self, alloc);
-                let base_addr = self.static_addr_of(init, alloc.align, None);
+        let value = if layout.size == Size::ZERO {
+            let value = self.const_usize(alloc.align.bytes());
+            self.context.new_cast(None, value, ty)
+        } else {
+            let init = const_alloc_to_gcc(self, alloc);
+            let base_addr = self.static_addr_of(init, alloc.align, None);
 
-                let array = self.const_bitcast(base_addr, self.type_i8p());
-                let value = self.context.new_array_access(None, array, self.const_usize(offset.bytes())).get_address(None);
-                self.const_bitcast(value, ty)
-            };
+            let array = self.const_bitcast(base_addr, self.type_i8p());
+            let value = self
+                .context
+                .new_array_access(None, array, self.const_usize(offset.bytes()))
+                .get_address(None);
+            self.const_bitcast(value, ty)
+        };
         PlaceRef::new_sized(value, layout)
     }
 
@@ -309,20 +314,15 @@ impl<'gcc, 'tcx> SignType<'gcc, 'tcx> for Type<'gcc> {
     fn to_signed(&self, cx: &CodegenCx<'gcc, 'tcx>) -> Type<'gcc> {
         if self.is_u8(cx) {
             cx.i8_type
-        }
-        else if self.is_u16(cx) {
+        } else if self.is_u16(cx) {
             cx.i16_type
-        }
-        else if self.is_u32(cx) {
+        } else if self.is_u32(cx) {
             cx.i32_type
-        }
-        else if self.is_u64(cx) {
+        } else if self.is_u64(cx) {
             cx.i64_type
-        }
-        else if self.is_u128(cx) {
+        } else if self.is_u128(cx) {
             cx.i128_type
-        }
-        else {
+        } else {
             self.clone()
         }
     }
@@ -330,26 +330,21 @@ impl<'gcc, 'tcx> SignType<'gcc, 'tcx> for Type<'gcc> {
     fn to_unsigned(&self, cx: &CodegenCx<'gcc, 'tcx>) -> Type<'gcc> {
         if self.is_i8(cx) {
             cx.u8_type
-        }
-        else if self.is_i16(cx) {
+        } else if self.is_i16(cx) {
             cx.u16_type
-        }
-        else if self.is_i32(cx) {
+        } else if self.is_i32(cx) {
             cx.u32_type
-        }
-        else if self.is_i64(cx) {
+        } else if self.is_i64(cx) {
             cx.u64_type
-        }
-        else if self.is_i128(cx) {
+        } else if self.is_i128(cx) {
             cx.u128_type
-        }
-        else {
+        } else {
             self.clone()
         }
     }
 }
 
-pub trait TypeReflection<'gcc, 'tcx>  {
+pub trait TypeReflection<'gcc, 'tcx> {
     fn is_uchar(&self, cx: &CodegenCx<'gcc, 'tcx>) -> bool;
     fn is_ushort(&self, cx: &CodegenCx<'gcc, 'tcx>) -> bool;
     fn is_uint(&self, cx: &CodegenCx<'gcc, 'tcx>) -> bool;

@@ -398,6 +398,7 @@ symbols! {
         breakpoint,
         bridge,
         bswap,
+        c_int_width,
         c_str,
         c_unwind,
         c_variadic,
