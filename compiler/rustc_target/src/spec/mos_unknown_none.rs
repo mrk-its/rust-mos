@@ -11,6 +11,18 @@ pub fn target() -> Target {
     // base.supported_sanitizers =
     //    SanitizerSet::ADDRESS | SanitizerSet::LEAK | SanitizerSet::MEMORY | SanitizerSet::THREAD;
 
+    let llvm_args = &[
+        "--force-precise-rotation-cost",
+        "--jump-inst-cost=6",
+        "--force-loop-cold-block",
+        "--phi-node-folding-threshold=0",
+        "--two-entry-phi-node-folding-threshold=0",
+        "--align-large-globals=false",
+        "--disable-spill-hoist",
+    ];
+
+    let llvm_args = llvm_args.iter().map(|opt| opt.to_string()).collect();
+
     let options = TargetOptions {
         c_int_width: "16".to_string(),
         cpu: "mos6502".to_string(),
@@ -23,6 +35,10 @@ pub fn target() -> Target {
         panic_strategy: PanicStrategy::Abort,
         linker: Some("clang".to_string()),
         no_default_libraries: false,
+        requires_lto: true,
+        supports_stack_protector: false,
+        trap_unreachable: false,
+        llvm_args,
         ..Default::default()
     };
 
