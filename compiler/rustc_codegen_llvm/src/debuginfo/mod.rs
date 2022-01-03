@@ -182,7 +182,7 @@ impl<'ll> DebugInfoBuilderMethods for Builder<'_, 'll, '_> {
             addr_ops.push(direct_offset.bytes() as u64);
         }
         for &offset in indirect_offsets {
-            addr_ops.push(op_deref());
+            addr_ops.push(op_deref() as u64);
             if offset.bytes() > 0 {
                 addr_ops.push(op_plus_uconst());
                 addr_ops.push(offset.bytes() as u64);
