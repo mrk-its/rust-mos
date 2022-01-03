@@ -33,7 +33,7 @@ pub fn target() -> Target {
         max_atomic_width: Some(8),
         disable_redzone: true,
         panic_strategy: PanicStrategy::Abort,
-        linker: Some("clang".to_string()),
+        linker: Some("mos-clang".to_string()),
         no_default_libraries: false,
         requires_lto: true,
         supports_stack_protector: false,
