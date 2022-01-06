@@ -20,6 +20,7 @@ def create_target(target_spec, sdk_build_dir, platform):
             os.path.join(sdk_build_dir, config_path),
         ]
     }
+    opts["vendor"] = platform
     return opts
 
 if __name__ == "__main__":
