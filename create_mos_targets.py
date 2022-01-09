@@ -12,14 +12,14 @@ CFG_FILES = {
 def create_target(target_spec, sdk_build_dir, platform):
     opts = target_spec.copy()
     opts.pop("is-builtin")    
-    # opts["linker"] = f"mos-{platform}-clang"   
-    config_path = CFG_FILES[platform]
-    opts["pre-link-args"] = {
-        "gcc": [
-            "--config",
-            os.path.join(sdk_build_dir, config_path),
-        ]
-    }
+    opts["linker"] = f"mos-{platform}-clang"
+    # config_path = CFG_FILES[platform]
+    # opts["pre-link-args"] = {
+    #     "gcc": [
+    #         "--config",
+    #         os.path.join(sdk_build_dir, config_path),
+    #     ]
+    # }
     opts["vendor"] = platform
     return opts
 
