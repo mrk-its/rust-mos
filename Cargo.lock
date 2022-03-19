@@ -318,7 +318,7 @@ dependencies = [
 
 [[package]]
 name = "cargo"
-version = "0.61.0"
+version = "0.62.0"
 dependencies = [
  "anyhow",
  "atty",
@@ -412,7 +412,7 @@ version = "0.1.0"
 dependencies = [
  "directories",
  "rustc-workspace-hack",
- "rustc_version 0.3.3",
+ "rustc_version",
  "serde",
  "serde_json",
  "vergen",
@@ -461,7 +461,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-util"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "core-foundation",
@@ -2350,7 +2350,7 @@ dependencies = [
  "measureme 9.1.2",
  "rand 0.8.4",
  "rustc-workspace-hack",
- "rustc_version 0.4.0",
+ "rustc_version",
  "shell-escape",
  "smallvec",
 ]
@@ -4408,15 +4408,6 @@ dependencies = [
  "rustc_ty_utils",
  "smallvec",
  "tracing",
-]
-
-[[package]]
-name = "rustc_version"
-version = "0.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f0dfe2087c51c460008730de8b57e6a320782fbfb312e1f4d520e6c6fae155ee"
-dependencies = [
- "semver 0.11.0",
 ]
 
 [[package]]
