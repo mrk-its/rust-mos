@@ -19,6 +19,7 @@ MOS target depends on [llvm-mos](https://github.com/llvm-mos/llvm-mos) and [llvm
 ```
 git clone https://github.com/llvm-mos/llvm-mos
 cd llvm-mos
+# For MacOS, use `-DLIBXML2_LIBRARY=/usr/local/opt/libxml2/lib/libxml2.dylib` instead of `-DLIBXML2_LIBRARY=/usr/lib/x86_64-linux-gnu/libxml2.so` 
 cmake -C clang/cmake/caches/MOS.cmake -G "Ninja" -S llvm -B build \
    -DLLVM_INSTALL_TOOLCHAIN_ONLY=OFF \
    -DLLVM_BUILD_LLVM_DYLIB=ON -DLLVM_LINK_LLVM_DYLIB=ON \
