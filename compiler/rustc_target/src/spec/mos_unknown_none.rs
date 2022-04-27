@@ -21,11 +21,11 @@ pub fn target() -> Target {
         "--disable-spill-hoist",
     ];
 
-    let llvm_args = llvm_args.iter().map(|opt| opt.to_string()).collect();
+    let llvm_args = llvm_args.iter().map(|opt| opt.to_string().into()).collect();
 
     let options = TargetOptions {
-        c_int_width: "16".to_string(),
-        cpu: "mos6502".to_string(),
+        c_int_width: "16".into(),
+        cpu: "mos6502".into(),
         executables: true,
         singlethread: true,
         atomic_cas: false,
@@ -33,7 +33,7 @@ pub fn target() -> Target {
         max_atomic_width: Some(8),
         disable_redzone: true,
         panic_strategy: PanicStrategy::Abort,
-        linker: Some("mos-clang".to_string()),
+        linker: Some("mos-clang".into()),
         no_default_libraries: false,
         requires_lto: true,
         supports_stack_protector: false,
@@ -45,10 +45,10 @@ pub fn target() -> Target {
     // options.pre_link_args.entry(LinkerFlavor::Gcc).or_default().push("--config /home/mrk/private/llvm-mos-sdk/build/atari/800xl.cfg".to_string());
 
     Target {
-        llvm_target: "mos-unknown-none".to_string(),
+        llvm_target: "mos-unknown-none".into(),
         options,
         pointer_width: 16,
-        data_layout: "e-m:e-p:16:8-i16:8-i32:8-i64:8-f32:8-f64:8-a:8-Fi8-n8".to_string(),
-        arch: "mos".to_string(),
+        data_layout: "e-m:e-p:16:8-i16:8-i32:8-i64:8-f32:8-f64:8-a:8-Fi8-n8".into(),
+        arch: "mos".into(),
     }
 }
