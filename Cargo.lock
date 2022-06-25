@@ -229,7 +229,7 @@ dependencies = [
  "num_cpus",
  "once_cell",
  "opener",
- "pretty_assertions",
+ "pretty_assertions 0.7.2",
  "serde",
  "serde_json",
  "sha2",
@@ -303,9 +303,9 @@ checksum = "08c48aae112d48ed9f069b33538ea9e3e90aa263cfa3d1c24309612b1f7472de"
 
 [[package]]
 name = "bytes"
-version = "1.1.0"
+version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4872d67bab6358e59559027aa3b9157c53d9358c51423c17554809a8858e0f8"
+checksum = "b700ce4376041dcd0a327fd0097c41095743c4c8af8887265942faf1100bd040"
 
 [[package]]
 name = "bytesize"
@@ -324,7 +324,7 @@ dependencies = [
 
 [[package]]
 name = "cargo"
-version = "0.63.0"
+version = "0.64.0"
 dependencies = [
  "anyhow",
  "atty",
@@ -359,6 +359,7 @@ dependencies = [
  "libgit2-sys",
  "log",
  "memchr",
+ "num_cpus",
  "opener",
  "openssl",
  "os_info",
@@ -366,7 +367,7 @@ dependencies = [
  "percent-encoding 2.1.0",
  "pretty_env_logger",
  "rustc-workspace-hack",
- "rustfix 0.6.1",
+ "rustfix",
  "semver",
  "serde",
  "serde_ignored",
@@ -461,6 +462,7 @@ dependencies = [
  "lazy_static",
  "remove_dir_all",
  "serde_json",
+ "snapbox",
  "tar",
  "termcolor",
  "toml_edit",
@@ -469,7 +471,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-util"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "anyhow",
  "core-foundation",
@@ -666,7 +668,7 @@ version = "0.1.63"
 dependencies = [
  "clippy_lints",
  "clippy_utils",
- "compiletest_rs 0.8.0",
+ "compiletest_rs",
  "derive-new",
  "filetime",
  "futures 0.3.19",
@@ -783,9 +785,9 @@ dependencies = [
 
 [[package]]
 name = "compiler_builtins"
-version = "0.1.73"
+version = "0.1.75"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "71b72fde1d7792ca3bd654f7c3ea4508f9e4d0c826e24179eabb7fcc97a90bc3"
+checksum = "c6e3183e88f659a862835db8f4b67dbeed3d93e44dd4927eef78edb1c149d784"
 dependencies = [
  "cc",
  "rustc-std-workspace-core",
@@ -803,36 +805,13 @@ dependencies = [
  "libc",
  "miow",
  "regex",
- "rustfix 0.6.1",
+ "rustfix",
  "serde",
  "serde_json",
  "tracing",
  "tracing-subscriber",
  "unified-diff",
  "walkdir",
- "winapi",
-]
-
-[[package]]
-name = "compiletest_rs"
-version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "29843cb8d351febf86557681d049d1e1652b81a086a190fa1173c07fd17fbf83"
-dependencies = [
- "diff",
- "filetime",
- "getopts",
- "lazy_static",
- "libc",
- "log",
- "miow",
- "regex",
- "rustfix 0.5.1",
- "serde",
- "serde_derive",
- "serde_json",
- "tempfile",
- "tester",
  "winapi",
 ]
 
@@ -850,7 +829,7 @@ dependencies = [
  "log",
  "miow",
  "regex",
- "rustfix 0.6.1",
+ "rustfix",
  "serde",
  "serde_derive",
  "serde_json",
@@ -944,6 +923,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "crossbeam"
+version = "0.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4ae5588f6b3c3cb05239e90bd110f257254aecd01e4635400391aeae07497845"
+dependencies = [
+ "cfg-if 1.0.0",
+ "crossbeam-channel",
+ "crossbeam-deque",
+ "crossbeam-epoch",
+ "crossbeam-queue",
+ "crossbeam-utils",
+]
+
+[[package]]
 name = "crossbeam-channel"
 version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -975,6 +968,16 @@ dependencies = [
  "lazy_static",
  "memoffset",
  "scopeguard",
+]
+
+[[package]]
+name = "crossbeam-queue"
+version = "0.3.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1f25d8400f4a7a5778f0e4e52384a48cbd9b5c495d110786187fc750075277a2"
+dependencies = [
+ "cfg-if 1.0.0",
+ "crossbeam-utils",
 ]
 
 [[package]]
@@ -2108,11 +2111,11 @@ dependencies = [
 
 [[package]]
 name = "kstring"
-version = "1.0.6"
+version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8b310ccceade8121d7d77fee406160e457c2f4e7c7982d589da3499bc7ea4526"
+checksum = "ec3066350882a1cd6d950d055997f379ac37fd39f81cd4d8ed186032eb3c5747"
 dependencies = [
- "serde",
+ "static_assertions",
 ]
 
 [[package]]
@@ -2469,17 +2472,18 @@ name = "miri"
 version = "0.1.0"
 dependencies = [
  "colored",
- "compiletest_rs 0.7.1",
  "env_logger 0.9.0",
  "getrandom 0.2.0",
+ "lazy_static",
  "libc",
  "log",
  "measureme 9.1.2",
  "rand 0.8.5",
+ "regex",
  "rustc-workspace-hack",
- "rustc_version",
  "shell-escape",
  "smallvec",
+ "ui_test",
 ]
 
 [[package]]
@@ -2953,6 +2957,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "pretty_assertions"
+version = "1.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c89f989ac94207d048d92db058e4f6ec7342b0971fc58d1271ca148b799b3563"
+dependencies = [
+ "ansi_term",
+ "ctor",
+ "diff",
+ "output_vt100",
+]
+
+[[package]]
 name = "pretty_env_logger"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3083,8 +3099,6 @@ dependencies = [
 [[package]]
 name = "racer"
 version = "2.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "64954e44fc0d1dcc64e0b9f2b155249ad62849eba25354b76ae1598d1e8f0fa0"
 dependencies = [
  "bitflags",
  "clap 2.34.0",
@@ -3092,8 +3106,26 @@ dependencies = [
  "env_logger 0.7.1",
  "humantime 2.0.1",
  "lazy_static",
+ "lazycell",
  "log",
+ "racer-cargo-metadata",
  "rls-span",
+]
+
+[[package]]
+name = "racer-cargo-metadata"
+version = "0.1.2"
+dependencies = [
+ "racer-interner",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "racer-interner"
+version = "0.1.0"
+dependencies = [
+ "serde",
 ]
 
 [[package]]
@@ -4658,18 +4690,6 @@ dependencies = [
 
 [[package]]
 name = "rustfix"
-version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f2c50b74badcddeb8f7652fa8323ce440b95286f8e4b64ebfd871c609672704e"
-dependencies = [
- "anyhow",
- "log",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "rustfix"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ecd2853d9e26988467753bd9912c3a126f642d05d229a4b53f5752ee36c56481"
@@ -5012,6 +5032,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "static_assertions"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
+
+[[package]]
 name = "std"
 version = "0.0.0"
 dependencies = [
@@ -5339,9 +5365,9 @@ checksum = "238ce071d267c5710f9d31451efec16c5ee22de34df17cc05e56cbc92e967117"
 
 [[package]]
 name = "tokio"
-version = "1.14.0"
+version = "1.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "70e992e41e0d2fb9f755b37446f20900f64446ef54874f40a60c78f021ac6144"
+checksum = "50dae83881bc9b0403dd5b44ea9deed3e939856cc8722d5be37f0d6e5c6d53dd"
 dependencies = [
  "autocfg",
  "bytes",
@@ -5357,9 +5383,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-stream"
-version = "0.1.8"
+version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "50145484efff8818b5ccd256697f36863f587da82cf8b409c53adf1e840798e3"
+checksum = "7b2f3f698253f03119ac0102beaa64f67a67e08074d03a22d18784104543727f"
 dependencies = [
  "futures-core",
  "pin-project-lite",
@@ -5368,9 +5394,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-util"
-version = "0.6.9"
+version = "0.6.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9e99e1983e5d376cd8eb4b66604d2e99e79f5bd988c3055891dcd8c9e2604cc0"
+checksum = "1caa0b0c8d94a049db56b5acf8cba99dc0623aab1b26d5b5f5e2d945846b3592"
 dependencies = [
  "bytes",
  "futures-core",
@@ -5391,9 +5417,9 @@ dependencies = [
 
 [[package]]
 name = "toml_edit"
-version = "0.13.4"
+version = "0.14.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "744e9ed5b352340aa47ce033716991b5589e23781acb97cad37d4ea70560f55b"
+checksum = "ba98375fd631b83696f87c64e4ed8e29e6a1f3404d6aed95fa95163bad38e705"
 dependencies = [
  "combine",
  "indexmap",
@@ -5519,6 +5545,20 @@ name = "ucd-trie"
 version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56dee185309b50d1f11bfedef0fe6d036842e3fb77413abef29f8f8d1c5d4c1c"
+
+[[package]]
+name = "ui_test"
+version = "0.1.0"
+dependencies = [
+ "colored",
+ "crossbeam",
+ "lazy_static",
+ "pretty_assertions 1.2.1",
+ "regex",
+ "rustc_version",
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "unic-char-property"
