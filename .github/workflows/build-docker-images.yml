@@ -1,5 +1,9 @@
 name: build_docker_images
 on:
+  push:
+    branches:
+      - master
+
   workflow_dispatch:
     inputs:
       llvm_mos_repo:
@@ -18,18 +22,13 @@ on:
         description: 'llvm-mos-sdk ref'
         required: true
         default: 'main'
-      rust_mos_ref:
-        description: 'rust-mos ref'
-        required: true
-        default: 'master'
-      llvm_mos_docker_tag:
-        description: 'llvm-mos docker tag'
-        required: true
-        default: 'latest'
-      rust_mos_docker_tag:
-        description: 'rust-mos docker tag'
-        required: true
-        default: 'latest'
+
+env:
+  LLVM_MOS_REPO: mrk-its/llvm-mos
+  LLVM_MOS_REF: lldb-mos
+  LLVM_MOS_SDK_REPO: llvm-mos/llvm-mos-sdk
+  LLVM_MOS_SDK_REF: main
+
 jobs:
   create_docker_images:
     runs-on: ubuntu-latest
@@ -40,16 +39,16 @@ jobs:
       - name: Checkout llvm-mos
         uses: actions/checkout@v3
         with:
-          repository: ${{ github.event.inputs.llvm_mos_repo }}
+          repository: ${{ github.event.inputs.llvm_mos_repo || env.LLVM_MOS_REPO }}
           path: docker/llvm-mos/llvm-mos
-          ref: ${{ github.event.inputs.llvm_mos_ref }}
+          ref: ${{ github.event.inputs.llvm_mos_ref || env.LLVM_MOS_REF }}
 
       - name: Checkout llvm-mos-sdk
         uses: actions/checkout@v3
         with:
-          repository: ${{ github.event.inputs.llvm_mos_sdk_repo }}
+          repository: ${{ github.event.inputs.llvm_mos_sdk_repo || env.LLVM_MOS_SDK_REPO }}
           path: docker/llvm-mos/llvm-mos-sdk
-          ref: ${{ github.event.inputs.llvm_mos_sdk_ref }}
+          ref: ${{ github.event.inputs.llvm_mos_sdk_ref || env.LLVM_MOS_SDK_REF }}
 
       - name: Set short sha
         id: short_sha
@@ -70,7 +69,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: mrkits/llvm-mos:${{ github.event.inputs.llvm_mos_docker_tag }},mrkits/llvm-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}
+          tags: mrkits/llvm-mos:latest,mrkits/llvm-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}
           context: docker/llvm-mos
           cache-from: type=registry,ref=mrkits/llvm-mos:llvm-mos-buildcache
           cache-to: type=registry,ref=mrkits/llvm-mos:llvm-mos-buildcache,mode=max
@@ -84,8 +83,8 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: mrkits/rust-mos:${{ github.event.inputs.rust_mos_docker_tag }},mrkits/rust-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-${{ steps.rust_mos.outputs.short_sha }}
+          tags: mrkits/rust-mos:latest,mrkits/rust-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-${{ steps.rust_mos.outputs.short_sha }}
           file: docker/rust-mos/Dockerfile
           context: .
           build-args: |
-            LLVM_MOS_SDK_IMAGE=mrkits/llvm-mos:${{ github.event.inputs.llvm_mos_docker_tag }}
+            LLVM_MOS_SDK_IMAGE=mrkits/llvm-mos:latest
