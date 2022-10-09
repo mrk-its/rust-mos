@@ -6,8 +6,8 @@
 	url = https://github.com/rust-lang/nomicon.git
 [submodule "src/tools/cargo"]
 	path = src/tools/cargo
-	url = https://github.com/mrk-its/cargo
-	branch = compiler_builtins_0.1.78
+	url = https://github.com/mrk-its/cargo.git
+	branch = compiler_builtins_0.1.79
 [submodule "src/doc/reference"]
 	path = src/doc/reference
 	url = https://github.com/rust-lang/reference.git
