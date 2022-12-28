@@ -50,6 +50,9 @@ jobs:
           path: docker/llvm-mos/llvm-mos-sdk
           ref: ${{ github.event.inputs.llvm_mos_sdk_ref || env.LLVM_MOS_SDK_REF }}
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
       - name: Set short sha
         id: short_sha
         run: echo -e "::set-output name=llvm_mos::$(cd docker/llvm-mos/llvm-mos; git rev-parse --short HEAD)\n::set-output name=llvm_mos_sdk::$(cd docker/llvm-mos/llvm-mos-sdk; git rev-parse --short HEAD)"
@@ -69,6 +72,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: mrkits/llvm-mos:latest,mrkits/llvm-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}
           context: docker/llvm-mos
           cache-from: type=registry,ref=mrkits/llvm-mos:llvm-mos-buildcache
@@ -83,6 +87,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: mrkits/rust-mos:latest,mrkits/rust-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-${{ steps.rust_mos.outputs.short_sha }}
           file: docker/rust-mos/Dockerfile
           context: .
