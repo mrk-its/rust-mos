@@ -12,12 +12,15 @@ COPY llvm-mos llvm-mos
 
 WORKDIR llvm-mos
 
+RUN ls -la /usr/lib/
+RUN uname -m
+
 RUN cmake -C clang/cmake/caches/MOS.cmake -G "Ninja" -S llvm -B build \
           -DLLVM_INSTALL_TOOLCHAIN_ONLY=OFF \
           -DLLVM_BUILD_LLVM_DYLIB=ON -DLLVM_LINK_LLVM_DYLIB=ON \
           -DLLVM_INSTALL_UTILS=ON -DLLVM_BUILD_UTILS=ON -DLLVM_TOOLCHAIN_UTILITIES=FileCheck \
           -DLLVM_TOOLCHAIN_TOOLS="llvm-addr2line;llvm-ar;llvm-cxxfilt;llvm-dwarfdump;llvm-mc;llvm-nm;llvm-objcopy;llvm-objdump;llvm-ranlib;llvm-readelf;llvm-readobj;llvm-size;llvm-strings;llvm-strip;llvm-symbolizer;llvm-config;llc" \
-          -DLIBXML2_LIBRARY=/usr/lib/x86_64-linux-gnu/libxml2.so \
+          -DLIBXML2_LIBRARY=/usr/lib/$(uname -m)-linux-gnu/libxml2.so \
           -DLLVM_TARGETS_TO_BUILD="MOS;X86" \
           -DLLVM_ENABLE_PROJECTS="clang;lld;lldb"
 
