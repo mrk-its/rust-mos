@@ -21,13 +21,13 @@ on:
       llvm_mos_sdk_ref:
         description: 'llvm-mos-sdk ref'
         required: true
-        default: 'main'
+        default: 'v0.11.5'
 
 env:
   LLVM_MOS_REPO: mrk-its/llvm-mos
   LLVM_MOS_REF: lldb-mos
   LLVM_MOS_SDK_REPO: llvm-mos/llvm-mos-sdk
-  LLVM_MOS_SDK_REF: main
+  LLVM_MOS_SDK_REF: v0.11.5
 
 jobs:
   create_docker_images:
