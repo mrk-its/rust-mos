@@ -13,7 +13,7 @@ on:
       llvm_mos_sdk_repo:
         description: 'llvm-mos-sdk repo'
         required: true
-        default: 'llvm-mos/llvm-mos-sdk'
+        default: 'mrk-its/llvm-mos-sdk'
       llvm_mos_ref:
         description: 'llvm-mos ref'
         required: true
@@ -21,13 +21,13 @@ on:
       llvm_mos_sdk_ref:
         description: 'llvm-mos-sdk ref'
         required: true
-        default: 'v0.11.5'
+        default: 'rust-mos'
 
 env:
   LLVM_MOS_REPO: mrk-its/llvm-mos
   LLVM_MOS_REF: lldb-mos
-  LLVM_MOS_SDK_REPO: llvm-mos/llvm-mos-sdk
-  LLVM_MOS_SDK_REF: v0.11.5
+  LLVM_MOS_SDK_REPO: mrk-its/llvm-mos-sdk
+  LLVM_MOS_SDK_REF: rust-mos
 
 jobs:
   create_docker_images:
