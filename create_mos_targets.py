@@ -1,7 +1,9 @@
+import glob
 import json
 import os
 import subprocess
 import sys
+import re
 
 def create_target(target_spec, platform):
     opts = target_spec.copy()
@@ -9,6 +11,13 @@ def create_target(target_spec, platform):
     opts["linker"] = f"mos-{platform}-clang"
     opts["vendor"] = platform
     return opts
+
+def get_mos_platforms():
+    return sorted(
+        re.search("mos-(.*)-clang", i).group(1)
+        for i in glob.glob(os.path.dirname(subprocess.getoutput("which mos-atari8-clang")) + '/mos-*-clang')
+        if 'common' not in i
+    )
 
 if __name__ == "__main__":
 
@@ -18,7 +27,7 @@ if __name__ == "__main__":
 
     dest_dir = sys.argv[1]
 
-    for arch in ("atari8", "c64", "commodore", "cx16", "dodo", "mega65", "nes", "nes-cnrom", "nes-mmc1", "nes-nrom", "osi-c1p", "sim"):
+    for arch in get_mos_platforms():
         target_def = create_target(target_spec, arch)
         target_file = os.path.join(dest_dir, f"mos-{arch}-none.json")
         with open(target_file, "w") as fp:
