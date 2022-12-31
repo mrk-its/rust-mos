@@ -800,7 +800,6 @@ extern "C" LLVMMetadataRef LLVMRustDIBuilderCreateFile(
     const char *Filename, size_t FilenameLen,
     const char *Directory, size_t DirectoryLen, LLVMRustChecksumKind CSKind,
     const char *Checksum, size_t ChecksumLen) {
-
   std::optional<DIFile::ChecksumKind> llvmCSKind = fromRust(CSKind);
   std::optional<DIFile::ChecksumInfo<StringRef>> CSInfo{};
   if (llvmCSKind)
