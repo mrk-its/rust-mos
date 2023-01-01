@@ -34,3 +34,9 @@ RUN rustup default mos
 ENV RUST_TARGET_PATH=/home/mos/rust-mos-target
 RUN mkdir $RUST_TARGET_PATH
 RUN python3 /usr/local/src/rust-mos/create_mos_targets.py $RUST_TARGET_PATH
+
+USER root
+RUN rustup toolchain link mos /usr/local/rust-mos
+RUN rustup default mos
+
+USER mos
