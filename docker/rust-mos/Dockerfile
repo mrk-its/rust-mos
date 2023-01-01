@@ -16,6 +16,8 @@ RUN cp /tmp/rust-mos-build/x86_64-unknown-linux-gnu/stage0-tools-bin/cargo  /tmp
     mv /tmp/rust-mos-build/x86_64-unknown-linux-gnu/stage1 /usr/local/rust-mos && \
     rm -fr .git
 
+RUN find /usr/local/rust-mos -name '*.rlib' -exec chmod a+r {} \;
+
 FROM ${LLVM_MOS_SDK_IMAGE}
 
 COPY --from=build /usr/local/src/rust-mos /usr/local/src/rust-mos
