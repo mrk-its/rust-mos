@@ -13,3 +13,7 @@ docs = false
 # target.
 
 llvm-config = "/usr/local/bin/llvm-config"
+llvm-has-rust-patches = false
+
+[llvm]
+download-ci-llvm = false
