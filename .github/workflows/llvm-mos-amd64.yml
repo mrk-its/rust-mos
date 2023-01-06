@@ -1,0 +1,83 @@
+name: llvm_mos_amd64
+on:
+  push:
+    branches:
+      - arm64x
+
+  workflow_dispatch:
+    inputs:
+      llvm_mos_repo:
+        description: 'llvm-mos repo'
+        required: true
+        default: 'llvm-mos/llvm-mos'
+      llvm_mos_sdk_repo:
+        description: 'llvm-mos-sdk repo'
+        required: true
+        default: 'llvm-mos/llvm-mos-sdk'
+      llvm_mos_ref:
+        description: 'llvm-mos ref'
+        required: true
+        default: 'main'
+      llvm_mos_sdk_ref:
+        description: 'llvm-mos-sdk ref'
+        required: true
+        default: 'main'
+
+env:
+  LLVM_MOS_REPO: llvm-mos/llvm-mos
+  LLVM_MOS_REF: main
+  LLVM_MOS_SDK_REPO: llvm-mos/llvm-mos-sdk
+  LLVM_MOS_SDK_REF: main
+
+jobs:
+  multi_arch_docker_image:
+    strategy:
+      matrix:
+        arch:
+          - amd64
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Checkout llvm-mos
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ github.event.inputs.llvm_mos_repo || env.LLVM_MOS_REPO }}
+          path: docker/llvm-mos/llvm-mos
+          ref: ${{ github.event.inputs.llvm_mos_ref || env.LLVM_MOS_REF }}
+
+      - name: Checkout llvm-mos-sdk
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ github.event.inputs.llvm_mos_sdk_repo || env.LLVM_MOS_SDK_REPO }}
+          path: docker/llvm-mos/llvm-mos-sdk
+          ref: ${{ github.event.inputs.llvm_mos_sdk_ref || env.LLVM_MOS_SDK_REF }}
+
+      - name: Set short sha
+        id: short_sha
+        run: echo -e "::set-output name=llvm_mos::$(cd docker/llvm-mos/llvm-mos; git rev-parse --short HEAD)\n::set-output name=llvm_mos_sdk::$(cd docker/llvm-mos/llvm-mos-sdk; git rev-parse --short HEAD)"
+
+      - name: Check outputs
+        run: echo ${{ steps.short_sha.outputs.llvm_mos }} ${{ steps.short_sha.outputs.llvm_mos_sdk }}          
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push llvm-mos
+        id: docker_build_1
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: mrkits/llvm-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-int-${{matrix.arch}}
+          platforms: ${{matrix.arch}}
+          context: docker/llvm-mos
+          # cache-from: type=registry,ref=mrkits/llvm-mos:llvm-mos-buildcache-${{matrix.arch}}
+          # cache-to: type=registry,ref=mrkits/llvm-mos:llvm-mos-buildcache-${{matrix.arch}},mode=max

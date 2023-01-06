@@ -1,0 +1,71 @@
+name: llvm_cross_build
+on:
+  workflow_dispatch:
+    inputs:
+      llvm_mos_repo:
+        description: 'llvm-mos repo'
+        default: 'llvm-mos/llvm-mos'
+        type: string
+      llvm_mos_sdk_repo:
+        description: 'llvm-mos-sdk repo'
+        default: 'llvm-mos/llvm-mos-sdk'
+        type: string
+      llvm_mos_ref:
+        description: 'llvm-mos ref'
+        default: 'main'
+        type: string
+      llvm_mos_sdk_ref:
+        description: 'llvm-mos-sdk ref'
+        default: 'main'
+        type: string
+
+jobs:
+  amd64_image:
+    uses: ./.github/workflows/cross-build-llvm-mos.yml
+    with:
+      arch: amd64
+      llvm_mos_repo: ${{ github.event.inputs.llvm_mos_repo }}
+      llvm_mos_sdk_repo: ${{ github.event.inputs.llvm_mos_sdk_repo }}
+      llvm_mos_ref: ${{ github.event.inputs.llvm_mos_ref }}
+      llvm_mos_sdk_ref: ${{ github.event.inputs.llvm_mos_sdk_ref }}
+    secrets: inherit
+
+  arm64_image:
+    uses: ./.github/workflows/cross-build-llvm-mos.yml
+    with:
+      arch: arm64
+      llvm_mos_repo: ${{ github.event.inputs.llvm_mos_repo }}
+      llvm_mos_sdk_repo: ${{ github.event.inputs.llvm_mos_sdk_repo }}
+      llvm_mos_ref: ${{ github.event.inputs.llvm_mos_ref }}
+      llvm_mos_sdk_ref: ${{ github.event.inputs.llvm_mos_sdk_ref }}
+    secrets: inherit
+
+  final:
+    runs-on: ubuntu-latest
+    needs:
+      - amd64_image
+      - arm64_image
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Checkout llvm-mos
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ github.event.inputs.llvm_mos_repo }}
+          path: docker/llvm-mos/llvm-mos
+          ref: ${{ github.event.inputs.llvm_mos_ref }}
+
+      - name: Checkout llvm-mos-sdk
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ github.event.inputs.llvm_mos_sdk_repo }}
+          path: docker/llvm-mos/llvm-mos-sdk
+          ref: ${{github.event.inputs.llvm_mos_sdk_ref }}
+
+      - name: Set short sha
+        id: short_sha
+        run: echo -e "::set-output name=llvm_mos::$(cd docker/llvm-mos/llvm-mos; git rev-parse --short HEAD)\n::set-output name=llvm_mos_sdk::$(cd docker/llvm-mos/llvm-mos-sdk; git rev-parse --short HEAD)"
+
+      - name: show tag
+        run: echo mrkits/llvm-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}

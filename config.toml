@@ -25,7 +25,7 @@ host = [
 
 extended = true
 tools = ["cargo", "clippy", "rustfmt", "src"] # + "rust-demangler" if `profiler`
-
+# tools = ["cargo"]
 
 [target.x86_64-unknown-linux-gnu]
 
@@ -33,23 +33,23 @@ tools = ["cargo", "clippy", "rustfmt", "src"] # + "rust-demangler" if `profiler`
 # against. Note that if this is specified we don't compile LLVM at all for this
 # target.
 
-llvm-config = "/usr/local/amd64-unknown-linux-gnu/bin/llvm-config"
+llvm-config = "/usr/local/bin/llvm-config"
 llvm-has-rust-patches = false
 
 [target.aarch64-unknown-linux-gnu]
 
-cc = "aarch64-linux-gnu-gcc-12" # (path)
+cc = "aarch64-linux-gnu-gcc-11" # (path)
 
 # C++ compiler to be used to compile C++ code (e.g. LLVM and our LLVM shims).
 # This is only used for host targets.
 # See `src/bootstrap/cc_detect.rs` for details.
-cxx = "aarch64-linux-gnu-g++-12" # (path)
+cxx = "aarch64-linux-gnu-g++-11" # (path)
 
 # Archiver to be used to assemble static libraries compiled from C/C++ code.
 # Note: an absolute path should be used, otherwise LLVM build will break.
 #ar = "ar" (path)
 
-ar = "aarch64-linux-gnu-gcc-ar-12"
+ar = "aarch64-linux-gnu-gcc-ar-11"
 
 # Ranlib to be used to assemble static libraries compiled from C/C++ code.
 # Note: an absolute path should be used, otherwise LLVM build will break.
@@ -61,8 +61,11 @@ ar = "aarch64-linux-gnu-gcc-ar-12"
 # Setting this will override the `use-lld` option for Rust code when targeting MSVC.
 #linker = "cc" (path)
 
-llvm-config = "/usr/local/aarch64-unknown-linux-gnu/bin/llvm-config"
+llvm-config = "/arm64-sysroot/usr/local/bin/llvm-config"
 llvm-has-rust-patches = false
 
 [llvm]
 download-ci-llvm = false
+
+[dist]
+compression-formats = ["xz"]
