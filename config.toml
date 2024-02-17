@@ -11,8 +11,8 @@ docs = false
 # Defaults to just the build triple.
 
 host = [
-    "x86_64-unknown-linux-gnu"
-#    "aarch64-unknown-linux-gnu"
+    "x86_64-unknown-linux-gnu",
+    "aarch64-unknown-linux-gnu"
 ]
 
 # Which triples to build libraries (core/alloc/std/test/proc_macro) for. Each of

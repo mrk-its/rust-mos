@@ -1,0 +1,8 @@
+ARG LLVM_MOS_IMAGE
+
+FROM --platform=linux/amd64 ${LLVM_MOS_IMAGE}-amd64 as amd64_image
+
+FROM ${LLVM_MOS_IMAGE}-arm64-tmp as builder
+
+RUN sudo rm -fr /usr/local/mos-platform
+COPY --from=amd64_image /usr/local/mos-platform /usr/local/mos-platform

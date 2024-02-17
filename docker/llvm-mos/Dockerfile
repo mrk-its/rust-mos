@@ -48,7 +48,7 @@ RUN cmake --build build -t install
 COPY llvm-mos-sdk /tmp/llvm-mos-sdk
 WORKDIR /tmp/llvm-mos-sdk
 
-RUN cmake -G "Ninja" -B build  -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
+RUN cmake -G "Ninja" -B build  -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DLLVM_MOS_BUILD_EXAMPLES=Off
 RUN cmake --build build -t install
 
 FROM final-${TARGETARCH}
@@ -64,5 +64,5 @@ RUN groupadd --gid $USER_GID $USERNAME \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME
 
-# USER $USERNAME
-# WORKDIR /home/$USERNAME
+USER $USERNAME
+WORKDIR /home/$USERNAME
