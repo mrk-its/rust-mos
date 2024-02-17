@@ -21,7 +21,7 @@ on:
 
 jobs:
   amd64_image:
-    if: ${{ true }}
+    if: ${{ false }}
     uses: ./.github/workflows/cross-build-llvm-mos.yml
     with:
       arch: amd64
@@ -32,7 +32,7 @@ jobs:
     secrets: inherit
 
   arm64_image_tmp:
-    if: ${{ true }}
+    if: ${{ false }}
     uses: ./.github/workflows/cross-build-llvm-mos.yml
     with:
       arch: arm64
@@ -44,7 +44,7 @@ jobs:
     secrets: inherit
 
   arm64_image:
-    if: ${{ true }}
+    if: ${{ false }}
     runs-on: ubuntu-latest
     needs:
       - amd64_image
@@ -87,9 +87,9 @@ jobs:
 
   final:
     runs-on: ubuntu-latest
-    needs:
-      - amd64_image
-      - arm64_image
+    # needs:
+    #   - amd64_image
+    #   - arm64_image
     steps:
       - name: cleanup
         run: |
