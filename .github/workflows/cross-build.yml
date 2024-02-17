@@ -120,14 +120,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set rust-mos short sha
-        id: rust_mos
-        run: echo -e "::set-output name=short_sha::$(git rev-parse --short HEAD) name=llvm_short_sha::$() "
-        # run: echo -e "::set-output name=short_sha::585f6d9c"
-
       - name: Set short sha
         id: short_sha
         run: |
+          echo "rust_mos=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
           echo "llvm_mos=$(echo ${{ github.event.inputs.llvm_mos_ref }} | cut -b 1-9)" >> $GITHUB_OUTPUT
           echo "llvm_mos_sdk=$(echo ${{ github.event.inputs.llvm_mos_sdk_ref }} | cut -b 1-7)" >> $GITHUB_OUTPUT
 
@@ -136,7 +132,7 @@ jobs:
         run: rm -fr docker/llvm-mos/llvm-mos docker/llvm-mos/llvm-mos-sdk; df -h
 
       - name: show revisions
-        run: "echo rust_mos: ${{ steps.rust_mos.outputs.short_sha }}"
+        run: "echo llvm-mos: ${{ steps.short_sha.outputs.llvm_mos}} llvm-mos-sdk: ${{ steps.short_sha.outputs.llvm_mos_sdk}} rust_mos: ${{ steps.short_sha.outputs.rust_mos}}"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -152,23 +148,21 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: mrkits/rust-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-${{ steps.rust_mos.outputs.short_sha }}-dist
+          tags: mrkits/rust-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-${{ steps.short_sha.outputs.rust_mos}}-dist
           file: docker/rust-mos/Dockerfile
           context: .
           build-args: |
             LLVM_MOS_IMAGE=mrkits/llvm-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}
-          cache-from: type=registry,ref=mrkits/rust-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-${{ steps.rust_mos.outputs.short_sha }}-dist
 
       - name: Build and push multi-platform rust-mos image
         id: build_rust_multiarch_image
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: mrkits/rust-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-${{ steps.rust_mos.outputs.short_sha }}
+          tags: mrkits/rust-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-${{ steps.short_sha.outputs.rust_mos }}
           file: docker/rust-mos/Dockerfile.multiarch
           platforms: linux/amd64,linux/arm64
           context: docker/rust-mos/
           build-args: |
             LLVM_MOS_IMAGE=mrkits/llvm-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}
-            RUST_MOS_DIST_IMAGE=mrkits/rust-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-${{ steps.rust_mos.outputs.short_sha }}-dist
-
+            RUST_MOS_DIST_IMAGE=mrkits/rust-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-${{ steps.short_sha.outputs.rust_mos }}-dist
