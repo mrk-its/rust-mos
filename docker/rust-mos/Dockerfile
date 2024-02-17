@@ -1,12 +1,14 @@
 ARG LLVM_MOS_IMAGE
-# FROM ${LLVM_MOS_IMAGE}-arm64 as arm64_image
+FROM --platform=linux/arm64 ${LLVM_MOS_IMAGE}-arm64 as arm64_image
 FROM ${LLVM_MOS_IMAGE}-amd64 as builder
 
-# COPY --from=arm64_image /usr /arm64-sysroot/usr
+USER root
+
+COPY --from=arm64_image /usr /arm64-sysroot/usr
 RUN cd /lib; ln -s /usr/aarch64-linux-gnu/lib/ld-linux-aarch64.so.1 .
-# RUN cd /usr/lib/aarch64-linux-gnu/; ln -s /arm64-sysroot/usr/lib/aarch64-linux-gnu/libc_nonshared.a .
-# RUN cd /lib/aarch64-linux-gnu/; ln -s /arm64-sysroot/usr/lib/aarch64-linux-gnu/libc.so.6
-# RUN cd /arm64-sysroot/usr/include/openssl/; ln -s ../aarch64-linux-gnu/openssl/configuration.h; ln -s ../aarch64-linux-gnu/openssl/opensslconf.h .
+RUN cd /usr/lib/aarch64-linux-gnu/; ln -s /arm64-sysroot/usr/lib/aarch64-linux-gnu/libc_nonshared.a .
+RUN cd /lib/aarch64-linux-gnu/; ln -s /arm64-sysroot/usr/lib/aarch64-linux-gnu/libc.so.6
+RUN cd /arm64-sysroot/usr/include/openssl/; ln -s ../aarch64-linux-gnu/openssl/configuration.h; ln -s ../aarch64-linux-gnu/openssl/opensslconf.h .
 
 WORKDIR /tmp
 COPY . rust-mos
