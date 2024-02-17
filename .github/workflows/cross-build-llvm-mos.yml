@@ -6,6 +6,10 @@ on:
         description: architecture
         default: 'amd64'
         type: string
+      arch_suffix:
+        description: 'arch suffix'
+        default: ''
+        type: string
       llvm_mos_repo:
         description: 'llvm-mos repo'
         default: 'mrk-its/llvm-mos'
@@ -22,34 +26,59 @@ on:
         description: 'llvm-mos-sdk ref'
         default: 'main'
         type: string
-
 jobs:
   cross_build_llvm:
     runs-on: ubuntu-latest
     steps:
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-        
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout llvm-mos
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: ${{ inputs.llvm_mos_repo }}
           path: docker/llvm-mos/llvm-mos
           ref: ${{ inputs.llvm_mos_ref }}
 
       - name: Checkout llvm-mos-sdk
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: ${{ inputs.llvm_mos_sdk_repo }}
           path: docker/llvm-mos/llvm-mos-sdk
           ref: ${{inputs.llvm_mos_sdk_ref }}
 
+
+      - name: cleanup
+        run: |
+          echo "=============================================================================="
+          echo "Freeing up disk space on CI system"
+          echo "=============================================================================="
+
+          echo "Listing 100 largest packages"
+          dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
+          df -h
+          echo "Removing large packages"
+          sudo apt-get update
+          sudo apt-get remove -y '^dotnet-.*' '^llvm-.*' 'aspnetcore.*' 'temurin.*' azure-cli google-cloud-cli \
+               microsoft-edge-stable google-chrome-stable firefox powershell mono-devel \
+               '^gfortran.*' 'mono-devel' 'libllvm.*' 'mysql-server-core-.*' 'libclang-common.*' \
+               '^gcc-10.*' '^gcc-11.*' '^gcc-12.*' '^postgresql.*' 'libclang-cpp.*' '^.*-dev$'
+
+          sudo apt-get autoremove -y
+          sudo apt-get clean
+          df -h
+          echo "Removing large directories"
+          sudo rm -rf /usr/share/dotnet/ /usr/share/swift /usr/share/miniconda /usr/local/lib/android
+          df -h
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
       - name: Set short sha
         id: short_sha
-        run: echo -e "::set-output name=llvm_mos::$(cd docker/llvm-mos/llvm-mos; git rev-parse --short HEAD)\n::set-output name=llvm_mos_sdk::$(cd docker/llvm-mos/llvm-mos-sdk; git rev-parse --short HEAD)"
+        run: |
+          echo "llvm_mos=$(echo ${{ github.event.inputs.llvm_mos_ref }} | cut -b 1-9)" >> $GITHUB_OUTPUT
+          echo "llvm_mos_sdk=$(echo ${{ github.event.inputs.llvm_mos_sdk_ref }} | cut -b 1-7)" >> $GITHUB_OUTPUT
 
       - name: Check outputs
         run: echo ${{ steps.short_sha.outputs.llvm_mos }} ${{ steps.short_sha.outputs.llvm_mos_sdk }}          
@@ -66,9 +95,9 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: mrkits/llvm-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-${{inputs.arch}}
+          tags: mrkits/llvm-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-${{inputs.arch}}${{inputs.arch_suffix}}
           build-args: TARGETARCH=${{ inputs.arch }}
           platforms: ${{ inputs.arch }}
           context: docker/llvm-mos
-          cache-from: type=registry,ref=mrkits/llvm-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-${{inputs.arch}}
+          cache-from: type=registry,ref=mrkits/llvm-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-${{inputs.arch}}${{inputs.arch_suffix}}
           # cache-to: type=registry,ref=mrkits/llvm-mos:llvm-mos-buildcache-${{matrix.arch}},mode=max
