@@ -363,6 +363,8 @@ impl<'tcx> LayoutLlvmExt<'tcx> for TyAndLayout<'tcx> {
     fn scalar_copy_llvm_type<'a>(&self, cx: &CodegenCx<'a, 'tcx>) -> Option<&'a Type> {
         debug_assert!(self.is_sized());
 
+        return None;
+
         // FIXME: this is a fairly arbitrary choice, but 128 bits on WASM
         // (matching the 128-bit SIMD types proposal) and 256 bits on x64
         // (like AVX2 registers) seems at least like a tolerable starting point.
