@@ -24,7 +24,7 @@ host = [
 #target = ["x86_64-unknown-linux-gnu"] (as an example)
 
 extended = true
-tools = ["cargo", "clippy", "rustfmt", "src"] # + "rust-demangler" if `profiler`
+tools = ["cargo", "clippy", "rustfmt", "rust-analyzer", "rust-analyzer-proc-macro-srv", "src"] # + "rust-demangler" if `profiler`
 # tools = ["cargo"]
 
 [target.x86_64-unknown-linux-gnu]
