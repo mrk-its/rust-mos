@@ -77,8 +77,8 @@ jobs:
       - name: Set short sha
         id: short_sha
         run: |
-          echo "llvm_mos=$(echo ${{ github.event.inputs.llvm_mos_ref }} | cut -b 1-9)" >> $GITHUB_OUTPUT
-          echo "llvm_mos_sdk=$(echo ${{ github.event.inputs.llvm_mos_sdk_ref }} | cut -b 1-7)" >> $GITHUB_OUTPUT
+          echo "llvm_mos=$(echo ${{ inputs.llvm_mos_ref }} | cut -b 1-9)" >> $GITHUB_OUTPUT
+          echo "llvm_mos_sdk=$(echo ${{ inputs.llvm_mos_sdk_ref }} | cut -b 1-7)" >> $GITHUB_OUTPUT
 
       - name: Check outputs
         run: echo ${{ steps.short_sha.outputs.llvm_mos }} ${{ steps.short_sha.outputs.llvm_mos_sdk }}          
