@@ -1,0 +1,74 @@
+name: aoc_tests
+on:
+  workflow_dispatch:
+    inputs:
+      llvm_mos_ref:
+        description: 'llvm-mos ref'
+        default: 'main'
+        type: string
+      llvm_mos_sdk_ref:
+        description: 'llvm-mos-sdk ref'
+        default: 'main'
+        type: string
+
+  workflow_call:
+    inputs:
+      llvm_mos_ref:
+        description: 'llvm-mos ref'
+        default: 'main'
+        type: string
+      llvm_mos_sdk_ref:
+        description: 'llvm-mos-sdk ref'
+        default: 'main'
+        type: string
+      rust_mos_sha:
+        type: string
+
+jobs:
+  run_aoc_tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [amd64, arm64]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+        with:
+          platform: ${{ matrix.arch }}
+
+      - name: Checkout aoc2022
+        uses: actions/checkout@v4
+        with:
+          repository: mrk-its/aoc2022
+          path: aoc2022
+          ref: new_rust
+
+      - name: Checkout aoc2022 inputs
+        uses: actions/checkout@v4
+        with:
+          repository: mrk-its/aoc2022_inputs
+          path: aoc2022/input
+          token: ${{ secrets.AOC2022_PAT }}
+
+      - name: Set short sha
+        id: short_sha
+        run: |
+          echo "rust_mos=$(echo ${{ inputs.rust_mos_sha || github.sha }} | cut -b 1-8)" >> $GITHUB_OUTPUT
+          echo "llvm_mos=$(echo ${{ inputs.llvm_mos_ref }} | cut -b 1-9)" >> $GITHUB_OUTPUT
+          echo "llvm_mos_sdk=$(echo ${{ inputs.llvm_mos_sdk_ref }} | cut -b 1-7)" >> $GITHUB_OUTPUT
+
+
+      - name: chown
+        run: |
+          pwd
+          find .
+          sudo chown -R 1000.1000 aoc2022
+
+      - name: run_all
+        run: |
+          docker run --rm -v $(pwd):/workspace -w /workspace --platform linux/${{ matrix.arch }} \
+          mrkits/rust-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-${{ steps.short_sha.outputs.rust_mos }} \
+          /bin/bash --login -c /workspace/aoc2022/run_all.sh
