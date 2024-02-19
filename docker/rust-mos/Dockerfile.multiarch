@@ -37,7 +37,7 @@ USER mos
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain none
 ENV PATH=$HOME/.cargo/bin:$PATH
+RUN bash -c "echo RUST_TARGET_PATH=$RUST_TARGET_PATH >> $HOME/.bashrc"
 RUN bash -c "source $HOME/.cargo/env; rustup toolchain link mos /usr/local/rust-mos; rustup default mos"
 
 WORKDIR /home/mos
-

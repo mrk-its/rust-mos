@@ -1,4 +1,4 @@
-name: llvm_cross_build
+name: build_rust_mos_docker_image
 on:
   workflow_dispatch:
     inputs:
@@ -12,39 +12,42 @@ on:
         type: string
       llvm_mos_ref:
         description: 'llvm-mos ref'
-        default: '1d7989f2995b83178ef26a28b4edf70bf556096b'
+        default: '8935d0b23f66086a0638dd7ade680398477cd782'
         type: string
       llvm_mos_sdk_ref:
         description: 'llvm-mos-sdk ref'
-        default: '777e89e95d389a6a67f7f3c572f7dd2b1730d209'
+        default: '6d4994fbcb21c7e02053b360cff7eb60bf7be1ab'
         type: string
-
+      rust_mos_sha:
+        description: 'rust_mos_sha (last part of image name)'
+        default: '21ee0734'
+        type: string
 jobs:
   amd64_image:
-    if: ${{ false }}
+    if: ${{ true }}
     uses: ./.github/workflows/cross-build-llvm-mos.yml
     with:
       arch: amd64
-      llvm_mos_repo: ${{ github.event.inputs.llvm_mos_repo }}
-      llvm_mos_sdk_repo: ${{ github.event.inputs.llvm_mos_sdk_repo }}
-      llvm_mos_ref: ${{ github.event.inputs.llvm_mos_ref }}
-      llvm_mos_sdk_ref: ${{ github.event.inputs.llvm_mos_sdk_ref }}
+      llvm_mos_repo: ${{ inputs.llvm_mos_repo }}
+      llvm_mos_sdk_repo: ${{ inputs.llvm_mos_sdk_repo }}
+      llvm_mos_ref: ${{ inputs.llvm_mos_ref }}
+      llvm_mos_sdk_ref: ${{ inputs.llvm_mos_sdk_ref }}
     secrets: inherit
 
   arm64_image_tmp:
-    if: ${{ false }}
+    if: ${{ true }}
     uses: ./.github/workflows/cross-build-llvm-mos.yml
     with:
       arch: arm64
       arch_suffix: -tmp
-      llvm_mos_repo: ${{ github.event.inputs.llvm_mos_repo }}
-      llvm_mos_sdk_repo: ${{ github.event.inputs.llvm_mos_sdk_repo }}
-      llvm_mos_ref: ${{ github.event.inputs.llvm_mos_ref }}
-      llvm_mos_sdk_ref: ${{ github.event.inputs.llvm_mos_sdk_ref }}
+      llvm_mos_repo: ${{ inputs.llvm_mos_repo }}
+      llvm_mos_sdk_repo: ${{ inputs.llvm_mos_sdk_repo }}
+      llvm_mos_ref: ${{ inputs.llvm_mos_ref }}
+      llvm_mos_sdk_ref: ${{ inputs.llvm_mos_sdk_ref }}
     secrets: inherit
 
   arm64_image:
-    if: ${{ false }}
+    if: ${{ true }}
     runs-on: ubuntu-latest
     needs:
       - amd64_image
@@ -68,8 +71,8 @@ jobs:
       - name: Set short sha
         id: short_sha
         run: |
-          echo "llvm_mos=$(echo ${{ github.event.inputs.llvm_mos_ref }} | cut -b 1-9) >> $GITHUB_OUTPUT
-          echo "llvm_mos_sdk=$(echo ${{ github.event.inputs.llvm_mos_sdk_ref }} | cut -b 1-7) >> $GITHUB_OUTPUT
+          echo "llvm_mos=$(echo ${{ inputs.llvm_mos_ref }} | cut -b 1-9)" >> $GITHUB_OUTPUT
+          echo "llvm_mos_sdk=$(echo ${{ inputs.llvm_mos_sdk_ref }} | cut -b 1-7)" >> $GITHUB_OUTPUT
 
       - name: Build and push fixed arm image
         id: build_fixed_arm_image
@@ -85,12 +88,23 @@ jobs:
             TARGETARCH=arm64
 
 
-  final:
+  build_image:
+    if: ${{ true }}
     runs-on: ubuntu-latest
-    # needs:
-    #   - amd64_image
-    #   - arm64_image
+    needs:
+      - amd64_image
+      - arm64_image
     steps:
+      - name: Set short sha
+        id: short_sha
+        run: |
+          echo "rust_mos=$(echo ${{ inputs.rust_mos_sha || github.sha }} | cut -b 1-8)" >> $GITHUB_OUTPUT
+          echo "llvm_mos=$(echo ${{ inputs.llvm_mos_ref }} | cut -b 1-9)" >> $GITHUB_OUTPUT
+          echo "llvm_mos_sdk=$(echo ${{ inputs.llvm_mos_sdk_ref }} | cut -b 1-7)" >> $GITHUB_OUTPUT
+
+      - name: show revisions
+        run: "echo llvm-mos: ${{ steps.short_sha.outputs.llvm_mos}} llvm-mos-sdk: ${{ steps.short_sha.outputs.llvm_mos_sdk}} rust_mos: ${{ steps.short_sha.outputs.rust_mos}}"
+
       - name: cleanup
         run: |
           echo "=============================================================================="
@@ -119,20 +133,6 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v3
-
-      - name: Set short sha
-        id: short_sha
-        run: |
-          echo "rust_mos=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-          echo "llvm_mos=$(echo ${{ github.event.inputs.llvm_mos_ref }} | cut -b 1-9)" >> $GITHUB_OUTPUT
-          echo "llvm_mos_sdk=$(echo ${{ github.event.inputs.llvm_mos_sdk_ref }} | cut -b 1-7)" >> $GITHUB_OUTPUT
-
-      - name: clean2
-        id: clean2
-        run: rm -fr docker/llvm-mos/llvm-mos docker/llvm-mos/llvm-mos-sdk; df -h
-
-      - name: show revisions
-        run: "echo llvm-mos: ${{ steps.short_sha.outputs.llvm_mos}} llvm-mos-sdk: ${{ steps.short_sha.outputs.llvm_mos_sdk}} rust_mos: ${{ steps.short_sha.outputs.rust_mos}}"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -166,3 +166,13 @@ jobs:
           build-args: |
             LLVM_MOS_IMAGE=mrkits/llvm-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}
             RUST_MOS_DIST_IMAGE=mrkits/rust-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-${{ steps.short_sha.outputs.rust_mos }}-dist
+
+  test_image:
+    needs:
+      - build_image
+    uses: ./.github/workflows/aoc_tests.yml
+    with:
+      llvm_mos_ref: ${{inputs.llvm_mos_ref}}
+      llvm_mos_sdk_ref: ${{inputs.llvm_mos_sdk_ref}}
+      rust_mos_sha: ${{inputs.rust_mos_sha}}
+    secrets: inherit
