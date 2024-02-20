@@ -44,7 +44,7 @@ jobs:
         with:
           repository: mrk-its/aoc2022
           path: aoc2022
-          ref: new_rust
+          ref: main
 
       - name: Checkout aoc2022 inputs
         uses: actions/checkout@v4
