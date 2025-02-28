@@ -1,4 +1,3 @@
-changelog-seen = 2
 [build]
 # Use this directory to store build artifacts.
 # You can use "$ROOT" to indicate the root of the git repository.
