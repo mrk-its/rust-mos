@@ -24,7 +24,7 @@ on:
         type: string
 jobs:
   amd64_image:
-    if: ${{ true }}
+    if: ${{ false }}
     uses: ./.github/workflows/cross-build-llvm-mos.yml
     with:
       arch: amd64
@@ -34,65 +34,65 @@ jobs:
       llvm_mos_sdk_ref: ${{ inputs.llvm_mos_sdk_ref }}
     secrets: inherit
 
-  # arm64_image_tmp:
-  #   if: ${{ true }}
-  #   uses: ./.github/workflows/cross-build-llvm-mos.yml
-  #   with:
-  #     arch: arm64
-  #     arch_suffix: -tmp
-  #     llvm_mos_repo: ${{ inputs.llvm_mos_repo }}
-  #     llvm_mos_sdk_repo: ${{ inputs.llvm_mos_sdk_repo }}
-  #     llvm_mos_ref: ${{ inputs.llvm_mos_ref }}
-  #     llvm_mos_sdk_ref: ${{ inputs.llvm_mos_sdk_ref }}
-  #   secrets: inherit
+  arm64_image_tmp:
+    if: ${{ false }}
+    uses: ./.github/workflows/cross-build-llvm-mos.yml
+    with:
+      arch: arm64
+      arch_suffix: -tmp
+      llvm_mos_repo: ${{ inputs.llvm_mos_repo }}
+      llvm_mos_sdk_repo: ${{ inputs.llvm_mos_sdk_repo }}
+      llvm_mos_ref: ${{ inputs.llvm_mos_ref }}
+      llvm_mos_sdk_ref: ${{ inputs.llvm_mos_sdk_ref }}
+    secrets: inherit
 
-  # arm64_image:
-  #   if: ${{ true }}
-  #   runs-on: ubuntu-latest
-  #   needs:
-  #     - amd64_image
-  #     - arm64_image_tmp
-  #   steps:
-  #     - name: Set up QEMU
-  #       uses: docker/setup-qemu-action@v2
+  arm64_image:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    needs:
+      - amd64_image
+      - arm64_image_tmp
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
 
-  #     - name: Set up Docker Buildx
-  #       uses: docker/setup-buildx-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
 
-  #     - name: Login to DockerHub
-  #       uses: docker/login-action@v1
-  #       with:
-  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
-  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  #     - name: Set short sha
-  #       id: short_sha
-  #       run: |
-  #         echo "llvm_mos=$(echo ${{ inputs.llvm_mos_ref }} | cut -b 1-9)" >> $GITHUB_OUTPUT
-  #         echo "llvm_mos_sdk=$(echo ${{ inputs.llvm_mos_sdk_ref }} | cut -b 1-7)" >> $GITHUB_OUTPUT
+      - name: Set short sha
+        id: short_sha
+        run: |
+          echo "llvm_mos=$(echo ${{ inputs.llvm_mos_ref }} | cut -b 1-9)" >> $GITHUB_OUTPUT
+          echo "llvm_mos_sdk=$(echo ${{ inputs.llvm_mos_sdk_ref }} | cut -b 1-7)" >> $GITHUB_OUTPUT
 
-  #     - name: Build and push fixed arm image
-  #       id: build_fixed_arm_image
-  #       uses: docker/build-push-action@v2
-  #       with:
-  #         push: true
-  #         tags: mrkits/llvm-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-arm64
-  #         file: docker/llvm-mos/Dockerfile.fix.arm64
-  #         context: .
-  #         platforms: arm64
-  #         build-args: |
-  #           LLVM_MOS_IMAGE=mrkits/llvm-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}
-  #           TARGETARCH=arm64
+      - name: Build and push fixed arm image
+        id: build_fixed_arm_image
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: mrkits/llvm-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-arm64
+          file: docker/llvm-mos/Dockerfile.fix.arm64
+          context: .
+          platforms: arm64
+          build-args: |
+            LLVM_MOS_IMAGE=mrkits/llvm-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}
+            TARGETARCH=arm64
 
 
   build_image:
     if: ${{ true }}
     runs-on: ubuntu-latest
-    needs:
-      - amd64_image
+    needs: []
+      # - amd64_image
       # - arm64_image
     steps:
       - name: Set short sha
