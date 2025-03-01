@@ -4,7 +4,7 @@ use crate::spec::{
     Target, TargetMetadata, TargetOptions, PanicStrategy
 };
 
-pub fn target() -> Target {
+pub(crate) fn target() -> Target {
     // base.pre_link_args.entry(LinkerFlavor::Gcc).or_default().push("-m64".to_string());
     // don't use probe-stack=inline-asm until rust#83139 and rust#84667 are resolved
     // base.stack_probes = StackProbeType::Call;
