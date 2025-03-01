@@ -1,7 +1,7 @@
 // use crate::spec::{LinkerFlavor, SanitizerSet, StackProbeType, Target};
 use crate::spec::{
     //LinkerFlavor,
-    Target, TargetOptions, PanicStrategy
+    Target, TargetMetadata, TargetOptions, PanicStrategy
 };
 
 pub fn target() -> Target {
@@ -50,5 +50,11 @@ pub fn target() -> Target {
         pointer_width: 16,
         data_layout: "e-m:e-p:16:8-p1:8:8-i16:8-i32:8-i64:8-f32:8-f64:8-a:8-Fi8-n8".into(),
         arch: "mos".into(),
+        metadata: TargetMetadata {
+            description: Some("8-bit 6502".into()),
+            tier: Some(3),
+            host_tools: Some(false),
+            std: Some(false),
+        },
     }
 }
