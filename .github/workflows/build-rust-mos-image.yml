@@ -161,8 +161,7 @@ jobs:
           push: true
           tags: mrkits/rust-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-${{ steps.short_sha.outputs.rust_mos }}
           file: docker/rust-mos/Dockerfile.multiarch
-          # platforms: linux/amd64,linux/arm64
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           context: docker/rust-mos/
           build-args: |
             LLVM_MOS_IMAGE=mrkits/llvm-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}
