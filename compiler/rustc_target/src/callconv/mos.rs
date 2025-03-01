@@ -1,4 +1,4 @@
-//! LLVM-frontend specific AVR calling convention implementation.
+//! LLVM-frontend specific MOS calling convention implementation.
 //!
 //! # Current calling convention ABI
 //!
@@ -30,7 +30,7 @@
 //! compatible with AVR-GCC - Rust and AVR-GCC only differ in the small amount
 //! of compiler frontend specific calling convention logic implemented here.
 
-use crate::abi::call::{ArgAbi, FnAbi};
+use crate::callconv::{ArgAbi, FnAbi};
 
 
 // TODO - understand what is going here, it is simply copied from avr.rs
