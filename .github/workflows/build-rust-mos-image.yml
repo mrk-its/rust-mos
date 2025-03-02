@@ -115,14 +115,12 @@ jobs:
           dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
           df -h
           echo "Removing large packages"
-          echo sudo apt-get update
-          echo sudo apt-get remove -y '^dotnet-.*' '^llvm-.*' 'aspnetcore.*' 'temurin.*' azure-cli google-cloud-cli \
-               microsoft-edge-stable google-chrome-stable firefox powershell mono-devel \
-               '^gfortran.*' 'mono-devel' 'libllvm.*' 'mysql-server-core-.*' 'libclang-common.*' \
-               '^gcc-10.*' '^gcc-11.*' '^gcc-12.*' '^postgresql.*' 'libclang-cpp.*' '^.*-dev$'
+          sudo apt-get update
+          sudo apt-get remove -y '^dotnet-.*' '^llvm-.*' azure-cli google-cloud-cli \
+               microsoft-edge-stable google-chrome-stable firefox powershell mono-devel
  
-          echo sudo apt-get autoremove -y
-          echo sudo apt-get clean
+          sudo apt-get autoremove -y
+          sudo apt-get clean
           df -h
           echo "Removing large directories"
           sudo rm -rf /usr/share/dotnet/ /usr/share/swift /usr/share/miniconda /usr/local/lib/android
