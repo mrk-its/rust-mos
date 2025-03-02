@@ -105,28 +105,24 @@ jobs:
       - name: show revisions
         run: "echo llvm-mos: ${{ steps.short_sha.outputs.llvm_mos}} llvm-mos-sdk: ${{ steps.short_sha.outputs.llvm_mos_sdk}} rust_mos: ${{ steps.short_sha.outputs.rust_mos}}"
 
-      - name: cleanup
-        run: |
-          echo "=============================================================================="
-          echo "Freeing up disk space on CI system"
-          echo "=============================================================================="
+      - name: "disk usage, before"
+        run:  df -h
 
-          echo "Listing 100 largest packages"
-          dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
-          df -h
-          echo "Removing large packages"
-          sudo apt-get update
-          sudo apt-get remove -y azure-cli google-cloud-cli \
-               microsoft-edge-stable google-chrome-stable firefox powershell mono-devel \
-               '^temurin-.*' '^llvm-.*' '^dotnet-.*' '^libllvm.*' google-cloud-cli-anthoscli mysql-server-core-8.0 \
-               mysql-client-core-8.0
- 
-          sudo apt-get autoremove -y
-          sudo apt-get clean
-          df -h
-          echo "Removing large directories"
-          sudo rm -rf /usr/share/dotnet/ /usr/share/swift /usr/share/miniconda /usr/local/lib/android
-          df -h
+      - name: Maximize build space
+        uses: AdityaGarg8/remove-unwanted-software@v5
+        with:
+          remove-android: 'true'
+          remove-dotnet: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+          remove-docker-images: 'true'
+          remove-large-packages: 'true'
+          remove-cached-tools: 'true'
+          remove-swapfile: 'true'
+          verbose: 'true'
+
+      - name: "disk usage, after"
+        run:  df -h
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
