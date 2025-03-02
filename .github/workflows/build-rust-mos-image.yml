@@ -119,7 +119,6 @@ jobs:
           remove-large-packages: 'true'
           remove-cached-tools: 'true'
           remove-swapfile: 'true'
-          verbose: 'true'
 
       - name: "disk usage, after"
         run:  df -h
