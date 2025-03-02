@@ -20,7 +20,7 @@ on:
         type: string
       rust_mos_sha:
         description: 'rust_mos_sha (last part of image name)'
-        # default: '21ee0734'
+        default: '14b5f533'
         type: string
 jobs:
   amd64_image:
