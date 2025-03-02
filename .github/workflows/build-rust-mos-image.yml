@@ -20,7 +20,7 @@ on:
         type: string
       rust_mos_sha:
         description: 'rust_mos_sha (last part of image name)'
-        default: '14b5f533'
+        # default: '14b5f533'
         type: string
 jobs:
   amd64_image:
@@ -138,16 +138,16 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # - name: Build and push rust-mos
-      #   id: build_rust_dist_image
-      #   uses: docker/build-push-action@v6
-      #   with:
-      #     push: true
-      #     tags: mrkits/rust-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-${{ steps.short_sha.outputs.rust_mos}}-dist
-      #     file: docker/rust-mos/Dockerfile
-      #     context: .
-      #     build-args: |
-      #       LLVM_MOS_IMAGE=mrkits/llvm-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}
+      - name: Build and push rust-mos
+        id: build_rust_dist_image
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: mrkits/rust-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}-${{ steps.short_sha.outputs.rust_mos}}-dist
+          file: docker/rust-mos/Dockerfile
+          context: .
+          build-args: |
+            LLVM_MOS_IMAGE=mrkits/llvm-mos:${{ steps.short_sha.outputs.llvm_mos }}-${{ steps.short_sha.outputs.llvm_mos_sdk }}
 
       - name: Build and push multi-platform rust-mos image
         id: build_rust_multiarch_image
