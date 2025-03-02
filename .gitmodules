@@ -5,7 +5,7 @@
 [submodule "src/tools/cargo"]
 	path = src/tools/cargo
 	url = https://github.com/mrk-its/cargo.git
-	branch = compiler_builtins_0.1.108
+	branch = compiler_builtins_patched
 	shallow = true
 [submodule "src/doc/reference"]
 	path = src/doc/reference
