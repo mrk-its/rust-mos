@@ -116,8 +116,10 @@ jobs:
           df -h
           echo "Removing large packages"
           sudo apt-get update
-          sudo apt-get remove -y '^dotnet-.*' '^llvm-.*' azure-cli google-cloud-cli \
-               microsoft-edge-stable google-chrome-stable firefox powershell mono-devel
+          sudo apt-get remove -y azure-cli google-cloud-cli \
+               microsoft-edge-stable google-chrome-stable firefox powershell mono-devel \
+               '^temurin-.*' '^llvm-.*' '^dotnet-.*' '^libllvm.*' google-cloud-cli-anthoscli mysql-server-core-8.0 \
+               mysql-client-core-8.0
  
           sudo apt-get autoremove -y
           sudo apt-get clean
