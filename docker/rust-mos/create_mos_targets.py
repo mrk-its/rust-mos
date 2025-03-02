@@ -7,7 +7,7 @@ import re
 
 def create_target(target_spec, platform, vendor, _os):
     opts = target_spec.copy()
-    opts.pop("is-builtin")    
+    opts.pop("is-builtin", None)
     opts["linker"] = f"mos-{platform}-clang"
     opts["vendor"] = vendor
     opts["os"] = _os
