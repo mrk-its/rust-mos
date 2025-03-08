@@ -4,7 +4,7 @@ on:
     inputs:
       llvm_mos_repo:
         description: 'llvm-mos repo'
-        default: 'llvm-mos/llvm-mos'
+        default: 'mrk-its/llvm-mos'
         type: string
       llvm_mos_sdk_repo:
         description: 'llvm-mos-sdk repo'
@@ -12,7 +12,7 @@ on:
         type: string
       llvm_mos_ref:
         description: 'llvm-mos ref'
-        default: '7c0751c5b1e2fd62e1e0e358e9e853903f876920'
+        default: '13f2838f909ca839ccb4d9a6c808de7b2ea60911'
         type: string
       llvm_mos_sdk_ref:
         description: 'llvm-mos-sdk ref'
@@ -24,7 +24,7 @@ on:
         type: string
 jobs:
   amd64_image:
-    if: ${{ false }}
+    if: ${{ true }}
     uses: ./.github/workflows/cross-build-llvm-mos.yml
     with:
       arch: amd64
@@ -35,7 +35,7 @@ jobs:
     secrets: inherit
 
   arm64_image_tmp:
-    if: ${{ false }}
+    if: ${{ true }}
     uses: ./.github/workflows/cross-build-llvm-mos.yml
     with:
       arch: arm64
@@ -47,7 +47,7 @@ jobs:
     secrets: inherit
 
   arm64_image:
-    if: ${{ false }}
+    if: ${{ true }}
     runs-on: ubuntu-latest
     needs:
       - amd64_image
@@ -91,9 +91,9 @@ jobs:
   build_image:
     if: ${{ true }}
     runs-on: ubuntu-latest
-    needs: []
-      # - amd64_image
-      # - arm64_image
+    needs:
+      - amd64_image
+      - arm64_image
     steps:
       - name: Set short sha
         id: short_sha
