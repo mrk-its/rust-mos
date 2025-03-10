@@ -53,6 +53,13 @@ jobs:
         run: |
           cat config.toml
 
+      - name: show config
+        run: |
+          cat config.toml
+          echo ${GITHUB_WORKSPACE}
+          ls -la ${GITHUB_WORKSPACE}
+
+
       - name: build rust-mos
         run: |
           python3 x.py dist
