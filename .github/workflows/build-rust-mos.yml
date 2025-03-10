@@ -48,6 +48,8 @@ jobs:
         with:
           input: ./config.toml.template
           output: ./config.toml
+        env:
+          GITHUB_WORKSPACE: ${GITHUB_WORKSPACE}
 
       - name: show config
         run: |
