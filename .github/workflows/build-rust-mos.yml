@@ -18,6 +18,9 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-20.04]
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Fetch the latest Ubuntu llvm-mos release.
         if: startsWith(matrix.os, 'ubuntu')
         run: |
@@ -49,3 +52,4 @@ jobs:
       - name: show config
         run: |
           cat config.toml
+          python3 --version
