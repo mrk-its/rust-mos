@@ -32,7 +32,7 @@ tools = ["cargo", "clippy", "rustfmt", "rust-analyzer", "rust-analyzer-proc-macr
 # against. Note that if this is specified we don't compile LLVM at all for this
 # target.
 
-llvm-config = "${WORKSPACE_DIR}/llvm-mos/bin/llvm-config"
+llvm-config = "/home/runner/work/rust-mos/rust-mos/llvm-mos/bin/llvm-config"
 llvm-has-rust-patches = false
 
 [target.aarch64-unknown-linux-gnu]
@@ -60,7 +60,7 @@ ar = "aarch64-linux-gnu-gcc-ar-11"
 # Setting this will override the `use-lld` option for Rust code when targeting MSVC.
 #linker = "cc" (path)
 
-llvm-config = "${WORKSPACE_DIR}/llvm-mos/bin/llvm-config"
+llvm-config = "/home/runner/work/rust-mos/rust-mos/llvm-mos/bin/llvm-config"
 llvm-has-rust-patches = false
 
 [llvm]
