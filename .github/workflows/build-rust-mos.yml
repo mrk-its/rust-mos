@@ -33,3 +33,13 @@ jobs:
         run: |
           curl -LO https://github.com/${{ inputs.llvm_mos_repo }}/releases/download/llvm-mos-darwin-main/llvm-mos-darwin-main.tar.xz
           tar -xvf llvm-mos-darwin-main.tar.xz
+
+      - name: Render config.toml
+        uses: nowactions/envsubst@v1
+        with:
+          input: ./config.toml.template
+          output: ./config.toml
+
+      - name: show config
+        run: |
+          cat config.toml
