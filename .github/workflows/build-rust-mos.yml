@@ -23,16 +23,22 @@ jobs:
         run: |
           curl -LO https://github.com/${{ inputs.llvm_mos_repo }}/releases/download/llvm-mos-linux-main/llvm-mos-linux-main.tar.xz
           tar -xvf llvm-mos-linux-main.tar.xz
+          curl -LO https://github.com/${{ inputs.llvm_mos_repo }}/releases/download/llvm-mos-linux-main/llvm-mos-linux-main-dev.tar.xz
+          tar -xvf llvm-mos-linux-main-dev.tar.xz
       - name: Fetch the latest Windows llvm-mos release.
         if: startsWith(matrix.os, 'windows')
         run: |
           curl -LO https://github.com/${{ inputs.llvm_mos_repo }}/releases/download/llvm-mos-windows-main/llvm-mos-windows-main.7z
           7z x llvm-mos-windows-main.7z
+          curl -LO https://github.com/${{ inputs.llvm_mos_repo }}/releases/download/llvm-mos-windows-main/llvm-mos-windows-main-dev.7z
+          7z x llvm-mos-windows-main-dev.7z
       - name: Fetch the latest Mac llvm-mos release.
         if: startsWith(matrix.os, 'macos')
         run: |
           curl -LO https://github.com/${{ inputs.llvm_mos_repo }}/releases/download/llvm-mos-darwin-main/llvm-mos-darwin-main.tar.xz
           tar -xvf llvm-mos-darwin-main.tar.xz
+          curl -LO https://github.com/${{ inputs.llvm_mos_repo }}/releases/download/llvm-mos-darwin-main/llvm-mos-darwin-main-dev.tar.xz
+          tar -xvf llvm-mos-darwin-main-dev.tar.xz
 
       - name: Render config.toml
         uses: nowactions/envsubst@v1
