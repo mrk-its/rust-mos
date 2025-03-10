@@ -49,7 +49,7 @@ jobs:
           input: ./config.toml.template
           output: ./config.toml
         env:
-          GITHUB_WORKSPACE: ${GITHUB_WORKSPACE}
+          WORKSPACE_DIR: /home/runner/work/rust-mos/rust-mos
 
       - name: show config
         run: |
