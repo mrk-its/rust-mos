@@ -1,0 +1,35 @@
+name: build_rust_mos
+on:
+  workflow_dispatch:
+    inputs:
+      llvm_mos_repo:
+        description: 'llvm-mos repo'
+        default: 'mrk-its/llvm-mos'
+        type: string
+      llvm_mos_ref:
+        description: 'llvm-mos ref'
+        default: '13f2838f909ca839ccb4d9a6c808de7b2ea60911'
+        type: string
+
+jobs:
+  build_rust_mos:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-20.04]
+    steps:
+      - name: Fetch the latest Ubuntu llvm-mos release.
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          curl -LO https://github.com/${{ inputs.llvm_mos_repo }}/releases/download/llvm-mos-linux-main/llvm-mos-linux-main.tar.xz
+          tar -xvf llvm-mos-linux-main.tar.xz
+      - name: Fetch the latest Windows llvm-mos release.
+        if: startsWith(matrix.os, 'windows')
+        run: |
+          curl -LO https://github.com/${{ inputs.llvm_mos_repo }}/releases/download/llvm-mos-windows-main/llvm-mos-windows-main.7z
+          7z x llvm-mos-windows-main.7z
+      - name: Fetch the latest Mac llvm-mos release.
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          curl -LO https://github.com/${{ inputs.llvm_mos_repo }}/releases/download/llvm-mos-darwin-main/llvm-mos-darwin-main.tar.xz
+          tar -xvf llvm-mos-darwin-main.tar.xz
