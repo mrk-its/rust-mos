@@ -52,4 +52,7 @@ jobs:
       - name: show config
         run: |
           cat config.toml
-          python3 --version
+
+      - name: build rust-mos
+        run: |
+          python3 x.py dist

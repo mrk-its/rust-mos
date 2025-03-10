@@ -60,7 +60,7 @@ ar = "aarch64-linux-gnu-gcc-ar-11"
 # Setting this will override the `use-lld` option for Rust code when targeting MSVC.
 #linker = "cc" (path)
 
-llvm-config = "/arm64-sysroot/usr/local/bin/llvm-config"
+llvm-config = "${GITHUB_WORKSPACE}/llvm-mos/bin/llvm-config"
 llvm-has-rust-patches = false
 
 [llvm]
