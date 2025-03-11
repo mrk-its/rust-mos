@@ -18,9 +18,6 @@ jobs:
       matrix:
         os: [ubuntu-20.04]
     steps:
-      - name: "disk usage, before"
-        run:  df -h
-
       - name: Maximize build space
         uses: AdityaGarg8/remove-unwanted-software@v5
         with:
@@ -32,9 +29,6 @@ jobs:
           remove-large-packages: 'true'
           remove-cached-tools: 'true'
           remove-swapfile: 'true'
-
-      - name: "disk usage, after"
-        run:  df -h
 
       - name: Checkout
         uses: actions/checkout@v4
