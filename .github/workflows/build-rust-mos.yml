@@ -65,3 +65,16 @@ jobs:
       - name: build rust-mos
         run: |
           python3 x.py dist
+
+      - name: list dist files
+        run: |
+          ls -la /tmp/rust-mos-build/dist
+
+      - name: "Release for Linux"
+        if: startsWith(matrix.os, 'ubuntu')
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: true
+          body: "rust-mos build for Linux"
+          tag_name: rust-mos-linux
+          files: "/tmp/rust-mos-build/dist/*.gz"
