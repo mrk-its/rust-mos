@@ -62,12 +62,8 @@ jobs:
           tar -xvf llvm-mos-darwin-main-dev.tar.xz
 
       - name: Render config.toml
-        uses: nowactions/envsubst@v1
-        with:
-          input: ./config.toml.template
-          output: ./config.toml
-        env:
-          WORKSPACE_DIR: /home/runner/work/rust-mos/rust-mos
+        run: |
+          cp ./config.toml.template ./config.toml
 
       - name: show config
         run: |
