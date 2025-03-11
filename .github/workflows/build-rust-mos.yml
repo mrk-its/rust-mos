@@ -78,11 +78,10 @@ jobs:
         run: |
           ls -la /tmp/rust-mos-build/dist
 
-      - name: "Release for Linux"
-        if: startsWith(matrix.os, 'ubuntu')
+      - name: "Release for ${{matrix.os}}"
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true
-          body: "rust-mos build for Linux"
-          tag_name: rust-mos-linux
+          body: "rust-mos build for ${{matrix.os}}"
+          tag_name: "rust-mos-${{matrix.os}}"
           files: "/tmp/rust-mos-build/dist/*.gz"
